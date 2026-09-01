@@ -1,3 +1,7 @@
+<img width="1086" height="1536" alt="image" src="https://github.com/user-attachments/assets/4126f0ed-9263-4cec-804f-9ece3341eed8" />
+
+
+
 MAEPiMS 2.0 (2026)
 Mathematics | Epidemiology | Machine Learning | Social Indicators
 

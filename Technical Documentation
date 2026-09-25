@@ -1,0 +1,104 @@
+Technical Documentation
+1. Purpose and Scope
+This document provides the implementation and reproducibility information for the submitted seasonal influenza forecasting framework. It complements the Technical Report by describing the software requirements, input data, model configuration, execution procedure, generated outputs, evaluation procedures, and reproducibility settings.
+The framework was developed specifically for the MAEPiMS Challenge 2026 and uses only the supplied synthetic Nigerian influenza dataset for model development and forecasting.
+
+2. Submission Package Structure
+The submission is organised into four principal components:
+•	Technical_Report.pdf
+•	Forecast_Dataset.csv
+•	Source_Code/ maepims_forecast.m
+•	Documentation.pdf
+The source code generates additional forecast, evaluation, and diagnostic files in the configured output directory.
+3. Software Requirements
+•	MATLAB R2016b or later is recommended.
+•	No MATLAB Statistics or Econometrics Toolbox is required.
+
+4. Input Data
+The implementation reads the supplied challenge CSV files. The principal inputs are:
+Input	Main fields	Purpose
+Weekly national data	season, epidemiological week, cases, hospitalisations, deaths, population	National modelling
+Weekly state data	season, epidemiological week, state, zone, cases, cases/100k, hospitalisations, deaths	State modelling
+State metadata	state, zone, population, healthcare access	Spatial adjustment and shrinkage
+Season summary	supplied challenge fields	Reference information
+Season reference	supplied challenge fields	Reference information
+The 2023/2024 and 2024/2025 seasons are used for model development. The 2025/2026 season is retained as an unseen test season.
+5. Model Configuration
+The submitted implementation uses the following fixed configuration:
+Parameter	Value
+Training seasons	2023/2024, 2024/2025
+Test season	2025/2026
+Weeks per season	52
+National simulations	6,000
+State simulations per state	1,500
+Number of harmonics	5
+Severity–harmonic interactions	3
+Severity jitter SD	0.1
+Bootstrap block length	4 weeks
+Residual jitter fraction	0.25
+Shrinkage constant	3 × 10⁶
+Quantile levels	0.025, 0.05, 0.10, 0.25, 0.50, 0.75, 0.90, 0.95, 0.975
+A fixed random seed, rng(20260101,'twister'), is used for reproducibility.
+6. Forecasting Workflow
+The implementation follows this sequence:
+1.	Load and standardise the supplied national, state, metadata, and reference data.
+2.	Fit the national weekly case model using five harmonic terms, seasonal severity, severity–harmonic interactions, and an AR(1) residual process.
+3.	Generate 6,000 Monte Carlo national case trajectories.
+4.	Forecast hospitalisations and deaths conditionally on the simulated case trajectories.
+5.	Apply the fitted healthcare-access adjustment to state-level outcome ratios.
+6.	Fit state-level harmonic incidence models.
+7.	Shrink state coefficients toward population-weighted geopolitical-zone coefficients.
+8.	Generate 1,500 state-level trajectories using zone residual pools, four-week block bootstrap sampling, continuous residual mixing, and Gaussian perturbation.
+9.	Aggregate state forecasts into the North and South geopolitical groupings.
+10.	Calculate forecast quantiles and evaluation metrics.
+11.	Write forecast datasets, evaluation results, and figures to the output directory.
+
+7. Running the Implementation
+Place the supplied input CSV files in the configured data directory and ensure that the main source-code file is accessible.
+Run:
+maepims_forecast
+The script performs model fitting, simulation, forecasting, evaluation, and output generation in a single execution.
+The 2025/2026 observations are not used for parameter estimation or model fitting. They are used only for post-hoc evaluation of the submitted forecasts.
+8. Probabilistic Forecasts
+The national forecast distribution is generated from 6,000 simulated trajectories. Empirical quantiles are calculated at nine probability levels:
+2.5%, 5%, 10%, 25%, 50%, 75%, 90%, 95%, and 97.5%.
+The 50% prediction interval is defined by the 25th and 75th percentiles, and the 90% prediction interval by the 5th and 95th percentiles. The 50th percentile is the median forecast.
+The full set of quantiles is used for quantile-loss evaluation. The principal national forecast CSV reports the median and the 50% and 90% prediction-interval bounds.
+9. Forecast and Output Files
+The submitted Forecast Dataset contains the forecast values required for evaluation. The exact file submitted for this purpose is:
+Forecast_Dataset.csv
+The implementation additionally produces the following diagnostic and evaluation files:
+•	national_weekly_forecast.csv — weekly national forecasts, including median cases, 50% and 90% prediction-interval bounds, median hospitalisation and death forecasts, actual values, and week-ahead increase/decrease probabilities.
+•	state_seasonal_forecast.csv — state-level seasonal forecasts and corresponding observed values, including attack rate, peak week, mortality rate, hospitalisation rate, and weekly forecast errors.
+•	national_evaluation_metrics.csv — national MAE, RMSE, WIS, CRPS, quantile loss, 50% and 90% coverage, and cumulative relative error.
+•	peak_week_probability.csv — empirical distribution of simulated national peak weeks.
+•	Eight PNG figures — national forecasts, regional forecasts, North/South comparison, state heatmaps, state summaries, peak-week results, and forecast uncertainty.
+The diagnostic and evaluation files are generated to document model performance and reproducibility and are distinct from the primary forecast dataset submitted for scoring.
+10. Evaluation
+National forecasts are evaluated using:
+•	Mean Absolute Error (MAE)
+•	Root Mean Square Error (RMSE)
+•	Weighted Interval Score (WIS)
+•	Continuous Ranked Probability Score (CRPS)
+•	Quantile loss across the nine specified quantiles
+•	50% prediction-interval coverage
+•	90% prediction-interval coverage
+•	Cumulative relative error
+State-level evaluation includes weekly MAE and RMSE, attack-rate error, peak-week error, and cumulative relative errors for hospitalisations and deaths.
+11. Reproducibility
+Reproducibility is supported through:
+•	fixed training and test seasons;
+•	fixed model configuration;
+•	fixed random seed;
+•	deterministic model-fitting procedures;
+•	explicitly specified simulation sizes and uncertainty parameters; and
+•	implementation of the principal modelling and scoring routines within the submitted source code.
+Running the submitted code with the same input data and compatible software environment should reproduce the corresponding forecast and evaluation outputs, subject to numerical differences between software environments.
+12. Originality and Implementation
+The submitted framework was developed specifically for the MAEPiMS Challenge 2026. Its methodological contribution is the integrated coupling of severity-conditioned harmonic forecasting, autoregressive residual simulation, conditional secondary-outcome forecasting, healthcare-access adjustment, geopolitical-zone shrinkage, and multi-scale uncertainty propagation within a single national-to-state forecasting pipeline.
+The implementation does not use external epidemiological datasets for model development.
+
+13. Important Implementation Notes
+The framework was developed using only two historical seasons for model development and one unseen synthetic test season. Consequently, the reported performance characterises the forecasting task within the supplied MAEPiMS dataset and should not be interpreted as evidence of general real-world epidemiological validity.
+Healthcare-access effects are used as empirical statistical adjustments and are not interpreted as causal effects. State-level hospitalisation and mortality forecasts are derived conditionally from the case forecasts rather than being independently simulated full probabilistic outcome trajectories.
+

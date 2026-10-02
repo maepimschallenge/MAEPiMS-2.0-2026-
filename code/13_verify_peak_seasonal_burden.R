@@ -453,6 +453,11 @@ DERIVE SEASONAL TARGETS FROM AMEM PREDICTIVE TRAJECTORIES
 # ============================================================
 # DERIVE SEASONAL TARGETS FROM AMEM PREDICTIVE TRAJECTORIES
 # ============================================================
+# NOTE:
+# This section assumes that `forecast_draws` has already been generated
+# by the forecasting implementation. This script derives and summarizes
+# seasonal targets from those predictive trajectories; it does not
+# generate the underlying forecasts.
 
 library(tidyverse)
 

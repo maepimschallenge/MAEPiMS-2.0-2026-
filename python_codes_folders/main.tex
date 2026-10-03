@@ -1,0 +1,2814 @@
+\documentclass[12pt,a4paper]{article}
+
+% ============================================================
+% PAGE LAYOUT
+% ============================================================
+\usepackage[margin=1in]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+
+% ============================================================
+% MATHEMATICS
+% ============================================================
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{amsthm}
+\usepackage{mathtools}
+
+% ============================================================
+% THEOREM-LIKE ENVIRONMENTS
+% ============================================================
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{assumption}[theorem]{Assumption}
+\newtheorem{example}[theorem]{Example}
+
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{observation}[theorem]{Observation}
+
+% ============================================================
+% TABLES
+% ============================================================
+\usepackage{booktabs}
+\usepackage{longtable}
+
+% ============================================================
+% FIGURES AND GRAPHICS
+% ============================================================
+\usepackage{graphicx}
+\usepackage{caption}
+
+% ============================================================
+% LANDSCAPE PAGES
+% ============================================================
+\usepackage{pdflscape}
+
+% ============================================================
+% TIKZ
+% ============================================================
+\usepackage{tikz}
+\usetikzlibrary{
+    positioning,
+    arrows.meta,
+    calc,
+    backgrounds,
+    fit,
+    shapes.geometric
+}
+
+% ============================================================
+% LISTS
+% ============================================================
+\usepackage{enumitem}
+
+% ============================================================
+% HYPERLINKS AND CROSS-REFERENCES
+% ============================================================
+\usepackage[hidelinks]{hyperref}
+
+% ============================================================
+% DOCUMENT INFORMATION
+% ============================================================
+\title{\textbf{Modelling Multi-Wave Seasonal Influenza Dynamics in Nigeria: An Extended Compartmental Approach}}
+
+
+
+
+\begin{document}
+
+\date{}
+\maketitle
+
+\begin{abstract}
+The seasonality of influenza in Nigeria is irregular and has multiple waves, which is not captured in a single-peak model. We create an original nine compartment deterministic model (SVEAITHQR) of susceptible, vaccinated, exposed, asymptomatic, symptomatic, hospitalised, antiviral-treated, isolated and recovered individuals, with an episodic (seasonal) transmission rate, and incorporate it into a framework for probabilistic forecasting. We establish positivity and boundedness of solutions, and determine the basic reproduction number $\mathcal{R}_0$ using the next-generation matrix method; when $\mathcal{R}_0<1$ we prove local asymptotic stability of the disease-free solution, and when a vaccine-adjusted threshold $\bar{\mathcal{R}}_0\le 1$ is satisfied, we prove global asymptotic stability of the disease-free solution; and that backward bifurcation is possible only under imperfect vaccination. The model was fitted to three seasons of weekly data for the national cases, hospitalisations and deaths, using synthetic surveillance data and a periodic log-spline forcing function; it replicates the main wave (September–November) and the wave associated with the Harmattan season (December–January) and yields $\mathcal{R}_0=4.44$ and a reporting fraction of 0.125. Forecasts are achieved by combining the mechanistic model (which contains parameter uncertainty, season-to-season uncertainty and observation uncertainty), and the analogue-season benchmark; they are disaggregated coherently to the North and the South, were selected and recalibrated via a time-ordered validation process, where models trained using data from 2023/24 to 2024/25 were used to forecast the whole season of 2025/26. The final ensemble resulted in a 23\% reduction in the national weighted interval score for cases, compared to the benchmark, and the national peak case was observed in the week the ensemble was produced. It predicts a national peak of 19.4 million reported cases (90th percentile prediction interval 13.1--28.8 million) in the week leading up to 4 October 2026, 291{,}000 hospitalisations and 26{,}700 deaths, with the North seeing the highest mortality rates two weeks after the South. Global sensitivity analysis shows that transmission, symptomatic infectiousness and recovery are the primary contributors to the value of $\mathcal{R}_0$. Control measures should commence before September and continue throughout the Harmattan and characterized by early isolation, early warning in the region and improved health care access in northern states with poor access.
+\end{abstract}
+
+Keywords: seasonal influenza, mathematical modelling, multi-wave seasonality, basic reproduction number, stability analysis, parameter estimation, sensitivity analysis, probabilistic forecasting, ensemble, Nigeria.
+
+
+\section{Introduction}
+\label{introduction}
+
+Seasonal influenza is a major respiratory illness that can cause substantial impacts to public health, healthcare resources and health system preparedness. Although many cases are mild and self-limited, influenza can lead to hospitalizations and death, particularly in young children, the elderly, pregnant women, people with chronic health conditions, and other vulnerable people. According to the World Health Organization (WHO), the influenza virus accounts for 3-5 million severe cases of influenza illness and 290,000-650,000 deaths caused by respiratory complications annually around the world \cite{WHO2025influenza}. These statistics highlight that influenza is not just a seasonal illness, but a major public health issue and must be monitored, prepared for and acted upon swiftly. As such, the WHO Global Influenza Strategy 2019-2030 emphasizes the need for increased surveillance, prevention, control, research and preparedness as essential components of national influenza programmes.
+
+Influenza outbreaks can be highly affected by where and when they occur. Winter epidemics are typically predictable in temperate regions, and year-round transmission with less predictable and fewer peaks is observed in tropical and subtropical regions \cite{Yuan2021tropics}. The prediction of these outbreaks is very difficult, due to the different time, size and number of the waves from year to year. The variability in this is influenced by a complex interplay of evolving climate, community immunity status, viral mutations and human behavior. Also, local health care practices and various types of medical testing affect the official record of flu data. These differences mean that the more predictable transmission patterns of regions with cold weather climates are not reflected in a traditional forecasting model in tropical areas.
+
+This is a problem that is widespread in Nigeria. National sentinel surveillance data indicate that influenza is present throughout the year and is quite variable nationally. It is important to note, however, that public health officials have observed a considerable increase in the number of cases in certain periods: January through March and August through November \cite{Akano2024Nigeria}. An analysis of our tracking data revealed that people entering with flu-like symptoms or with severe lung infections had a high rate of flu infections, particularly young children. These results show that a one-size-fits-all annual peak is not an appropriate representation of the influenza behavior in Nigeria. Rather, any forecasting model must be flexible enough to capture multiple waves of illness, interannual patterns of impact, and country-specific patterns of transmission.
+
+Predicting flu trends isn't just about trying to guess the number of infections that will occur in the future. Early and reliable forecasts enable public health officials to better prepare for an increase in doctor visits, hospitalizations and deaths. Disease spread in the real world is unpredictable; forecasting models today are based on probabilities rather than exact numbers. This guarantees that the official healthcare strategies are able to effectively respond to the unexpected changes in timing and scale. The FluSight forecasting effort was evaluated using this approach and it was shown that the performance of forecast models varies over time based on the forecast lead time or when there is rapid epidemiological change \cite{Mathis2024FluSight}. These results bring into sharp focus an important difference between the curve fitting exercises that are retrospective and a proper epidemic forecasting system: a good forecasting system should be such that predictive statements stay informative when the future path is unknown.
+
+The results of recent developments have illustrated that complementary forecasting methods can be effective. To illustrate, Tsang et al. \cite{Tsang2024adaptive} designed an adaptive ensemble model for influenza activity in an irregular-seasonality scenario and showed that dynamically adjusting the weights of the component models can enhance the forecasting for various stages of the influenza epidemic. Analogously, Ray et al. \cite{Ray2025Flusion} proposed a multi-signal forecasting model, utilizing a gradient boosting quantile regression model and a Bayesian autoregressive component, and showed the benefit of leveraging information from various surveillance signals and geographical locations. The developments show that prediction models can perform better by incorporating information about the time-dependent relationships, outbreak patterns that are not linear, geographic differences, and forecasting variables.
+
+
+
+
+
+
+In more recent years, hybrid approaches have arisen to combine mechanistic epidemiological understanding with cutting edge statistical approaches and machine-learning algorithms. Rama et al. \cite{Rama2026PINN} introduced a physics-informed neural network model for seasonal influenza prediction, which directly integrated the structure of a classic epidemic model into the network structure. These strategies illustrate a new mode of outbreak prediction that involves data-driven learning that is led and constrained by existing epidemiological principles. This does not imply that any of the methodologies will be effective in Nigeria. However, because of the diversity of environmental influences, disease surveillance systems, population dynamics, medical services, and the cyclical nature of outbreaks, models need to be created and tested for the specific community in which they are to be implemented.
+
+
+Nigeria has 36 states and the Federal Capital Territory, with large population differences, climate differences, differences in access to medical care, and difference in travel patterns. Due to these differences, a national outbreak curve may be composed of several different local transmission cycles. Either a sharp increase at the national level may be due to "just in time" outbreaks throughout the country, or isolated outbreaks in different parts of the country could follow each other in time. A national series which is assumed to be completely homogeneous by the forecasting model may then lose information in the state surveillance patterns.
+
+
+Most importantly, this research is trying to predict the future, not just to explain past data. The main goal is to provide an estimate of influenza cases that will occur in the coming week. The model calculates future hospitalizations and deaths, predicts important seasonal events such as peak week, maximum incidence, and total illness burden along with case numbers. Median estimates, prediction intervals and quantile forecasts are central to the framework, so modelling uncertainty is not an afterthought but is fundamental to the modelling process. This is in line with the evolution of tracking transmissible pathogens in general. There are statistics that are often used in this area to measure uncertainty and inform public health decisions in the face of changing outbreak dynamics, such as in the influenza field where the statistical projections are commonly used for quantifying unpredictability and guiding public health decisions in the face of changing outbreak dynamics, as mentioned in \cite{Mathis2024FluSight,Tsang2024adaptive,Ray2025Flusion}.
+
+To overcome this, we present a novel mechanistic framework that can be used specifically to forecast influenza dynamics in Nigeria. In this mathematical model, the population is divided into several different epidemiologically relevant states: susceptible, vaccinated, exposed, asymptomatic, symptomatic, hospitalized, treated with antivirals, quarantined, isolated, and recovered. In addition, we incorporate the seasonal variation directly into the transmission rate, which allows the model to account for annual cyclical changes in the activity of the virus and possible multiple waves of outbreaks. This framework takes into consideration the different stages of contagion of the disease. It details the precise clinical pathways from local transmission to hospitalisation, treatment, recovery and mortality. This design has a number of advantages: it gives a transparent and comprehensible picture of the outbreak, while being flexible enough to imply future developments.
+
+
+
+
+The research is mainly directed towards developing an accurate multi-wave seasonal modeling system for influenza across Nigeria that is reliable, independent, and has the ability to capture uncertainty. In particular, the model is designed to predict the weekly number of flu cases across the country, as well as estimating hospitalisation and mortality rates, the characteristics of flu outbreaks over a season and local transmission phenomena. This methodology aims to provide a unified approach to both deterministic and probabilistic forecasting by combining core epidemiological mechanisms and spatial and temporal data from pre-existing surveillance systems.
+
+The rest of the paper is set up following the challenge structure. The modelling, data and forecasting assumptions are given in Section~\ref{sec:assumptions}. In Section~\ref{s2} the model architecture, nine-compartment transmission model, equations, and observation, seasonal-forcing, spatial and ensemble layers are presented that convert the model into a forecasting system. Section~\ref{sec:justification} provides the epidemiologic and mathematical justification of the model, including positivity, boundedness, the basic reproduction number and stability of such equilibria. Section~\ref{sec:forecasting_methodology} describes the forecasting methodology: data analysis, model fitting and parameter estimation, generation of probabilistic forecasts, spatial disaggregation and time-ordered validation. The validation results, the 2026/27 forecasts at national, regional and state level, and the numerical simulation of the fitted model are reported in Section~\ref{sec:results}. The Policy Implications, the Discussion and the Uncertainty Analysis are presented in Sections~\ref{sec:policy}, \ref{sec:discussion} and~\ref{sec:uncertainty} respectively and Section~\ref{s5} concludes.
+
+
+
+
+
+
+
+
+\section{Assumptions}\label{sec:assumptions}
+
+\subsection{Epidemiological model assumptions}
+
+\begin{enumerate}[leftmargin=*]
+
+
+\item We assume that there is a homogenous mixing of the human population within the national surveillance catchment area. Therefore, every individual has the same expected probability of having contact with an infectious person. This is expressed by a single force of infection, which is represented by $\lambda(t)$. Moreover, this variable is dependent on a climatic forcing function which represents the bimodal rainfall and temperature patterns in Nigeria \cite{anderson1991infectious,bansal2007homogeneous}.
+
+
+
+\item After receiving the seasonal flu shot, people are assigned to a new category of vaccinated people, $V$. They are still vulnerable with a degree of effectiveness $\varepsilon_V\in(0,1)$. Thus, the percentage effect of the vaccine is reflected in the reduced force of infection $(1-\varepsilon_V)\lambda$ \cite{halloran2009vaccine,hill2019seasonal}
+
+
+
+\item Some of the people who are exposed enter into an asymptomatic phase, while others enter into a symp-tom phase. Both the symptomatic and asymptomatic spreaders have the potential to spread the virus; the latter, with $\eta_A\in(0,1)$, spread the infection at a lower relative rate, as shown by the references cited in the following \cite{patrozou2009asymptomatic,cowling2010household,tsang2023asymptomatic}.
+
+
+
+\item Symptoms may lead to seeking antiviral drugs, hospitalisation or self-isolation or isolation. Different pathways have different transition rates, and this will depend on individual health service user characteristics, clinical procedures, and the availability of antiviral treatment.
+
+
+
+\item The mitigation variables $\eta_T,\eta_Q\in(0,1)$ quantify the capacity to spread the virus for people who are receiving antiviral treatment and those who are in isolation. Viral shedding is thought to be reduced in duration and/or intensity by medical treatment, while quarantine reduces the opportunity for contact with uninfected persons \cite{hayden2018baloxavir,dobson2015oseltamivir,jefferson2014oseltamivir}.
+
+
+\item After a person has recovered, they are only protected against the disease for a short period of time. If a person has a cleared infection, the person eventually returns to the susceptible state at a steady rate, $\kappa$. This decay enables a vulnerable population to accumulate between outbreak waves of influenza, which eventually leads to the return of outbreak waves in the subsequent seasons as noted in \cite{woolthuis2017immunity,hill2019seasonal}.
+
+
+
+\item The times between successive episodes of the disease are exponentially distributed. This means that transition rates are the reciprocal of the mean latency, infectiousness, hospitalization, and treatment durations. This Markovian approach makes it possible to have a tractable mathematical model for the evolution of illness and demographic change in each compartment of the compartmental structure, as in \cite{anderson1991infectious,keeling2008modeling}.
+
+
+
+\item The effects of weather are thought to influence the spread of flu, creating a predictable cyclical pattern, particularly temperature and absolute moisture.
+The model is created using a seasonal forcing function:
+$$\beta(t)=\beta_0\bigl(1+\delta_c\cos\bigl(2\pi(t-\phi)/365\bigr)\bigr),$$ 
+
+The parameter $\delta_c\in(0,1)$ is the strength of the seasonal swing in this equation, and the parameter $\phi$ is a time-shift parameter that connects with the real world transmission cycle. This method takes into account the combined effect of seasonal changes in the weather rather than each individual weather factor separately \cite{shaman2009humidity, tamerius2011seasonality, yuan2021tropics}.
+
+
+
+
+
+\item The model assumes that mortality is predominantly among those who are symptomatic and/or require hospitalization or do not receive treatment during severe illness. On the other hand, the mortality rate for those vaccinated, but without symptoms, who receive treatment, or who are quarantined is expected to be close to the background mortality rate $\mu$ (except when specific parameters of the model would otherwise indicate otherwise) \cite{thompson2003mortality, hayden2018baloxavir}.
+
+
+
+\item Demographic turnover is represented as a continuous process: new people join the susceptible population at a constant rate labeled $\Lambda$ and a homogeneous natural death rate, $\mu$ is applied to all the health compartments. Also, since the forecasting window is limited to a particular influenza transmission cycle, neither immigration nor emigration is included in the analysis $\cite{anderson1991infectious,keeling2008modeling}.$
+
+
+
+\end{enumerate}
+
+
+\clearpage
+
+
+
+\subsection{Data, observation and forecasting assumptions}\label{sec:data_assumptions}
+
+Besides the epidemiological assumptions listed above, the forecasting framework is based on the following assumptions regarding the data provided and the job of a forecaster.
+\begin{enumerate}[leftmargin=*,label=(D\arabic*)]
+\item Only synthetic surveillance data provided for the MAEPiMS Challenge 2026 are used for fitting, model selection and evaluation; published studies are used to only fix the values of a small number of natural-history parameters (Table~\ref{tab:parameters}).
+\item Each provided week (Monday-Sunday) is counted as part of the epidemiological week (Sunday-Saturday) which starts on the previous Sunday, thus having 6 days in common with the provided week. All forecasts are for epidemiological weeks that start on Sunday - week~1 of the 2026/27 season starts on Sunday 28 June 2026.
+\item All hospitalizations and deaths are reported while reported cases are a constant proportion $p_c$ of new symptomatic infections and new asymptomatic infections are not reported. The counts are normally distributed around these means with a seasonal background count distributed normally as well, but with a different mean.
+\item The first week of each season exhibits a start-of-season artefact (approximately four times the second week of the season) not a transmission signal, which is not included in the fitting and is reproduced statistically in the forecasts.
+\item Each of these seasons is a realisation of the same transmission process: Epidemiological parameters remain the same across seasons, the transmission multiplier, the Harmattan intensity and the initial susceptible fraction, as well as backgrounds, differ from one season to the next. The unknown values for 2026/27 will be taken from the observed seasons.
+\item Spatial heterogeneity is illustrated by the national epidemic share by week and state-specific severity ratios for 2023/24-2025/26, which are related to climate zone and healthcare accessibility.
+\item In 2026/27, the reporting system, access to health and intervention coverage is assumed to be as in the observed seasons, with no new intervention added.
+\end{enumerate}
+
+\section{Model Architecture}\label{s2}
+
+The forecasting system consists of four layers: (i) a mechanistic transmission layer – the nine-compartment SVEAITHQR model described in this section; (ii) a seasonal-forcing layer – a periodic spline for the transmission rate; (iii) an observation layer, connecting model flows with reported cases, hospitalisations and deaths; and (iv) a spatial and probabilistic layer, resulting in coherent state, regional and national forecast distributions. The four layers (ii)--(iv) are summarised in Section~\ref{sec:architecture_layers} and detailed in Section~\ref{sec:forecasting_methodology}.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{schematic_maepims.pdf}
+\caption{Schematic diagram of the influenza model.}
+    \label{fig:my_label}
+\end{figure}
+
+
+
+\subsection{Model Description}
+The total number of humans in the human population $N(t)$ is divided into nine mutually exclusive compartments:
+
+
+\begin{itemize}[leftmargin=*]
+\item $S(t)$ -- susceptible individuals who have never been infected or whose immunity has waned;
+\item $V(t)$ -- individuals who have received the current seasonal influenza vaccine;
+\item $E(t)$ -- exposed (latently infected) individuals who are not yet infectious;
+\item $A(t)$ -- asymptomatic infectious individuals;
+\item $I(t)$ -- symptomatic infectious individuals in the community;
+\item $H(t)$ -- hospitalized severe cases;
+\item $T(t)$ -- individuals receiving antiviral therapy (primarily oseltamivir);
+\item $Q(t)$ -- quarantined or isolated individuals (symptomatic or asymptomatic);
+\item $R(t)$ -- recovered individuals possessing temporary immunity.
+\end{itemize}
+
+The recruitment into the susceptible class is at a constant rate $\Lambda$. The natural mortality rate is $\mu$ which is the same for all compartments. The rate of infection is
+\begin{equation}
+\lambda(t)=\frac{\beta(t)}{N(t)}\bigl(A+\eta_I I+\eta_H H+\eta_T T+\eta_Q Q\bigr),
+\end{equation}
+The seasonal transmission coefficient is given by where
+\begin{equation}
+\beta(t)=\beta_0\bigl(1+\delta_c\cos\bigl(2\pi(t-\phi)/365\bigr)\bigr).
+\end{equation}
+
+Infected individuals progress to exposed state $(E)$ at rate $\lambda$ for healthy people. The proportion of people who have been vaccinated is $(1-\varepsilon_V)\lambda$. Following an average incubation time of $\frac{1}{\sigma}$, exposed subjects turn into carriers who can spread the disease. Some of these individuals, indicated by $\theta$ never exhibit any symptoms (A), while the other part of the population, $1-\theta$, do exhibit clinical symptoms (I).
+
+
+The framework has been designed to be built using ordinary differential equations (ODE) of integer order because the length of generation and serial intervals within a season of influenza are well described by an exponential distribution over the time period of the season. Thus it is not necessary to include a long term memory kernel. All the parameters in the system are assumed to be constant except the forcing term $\beta(t)$ that is dependent on the climate. 
+
+
+
+\subsection{Model Equations}
+The nine compartment model is described by the system of ordinary differential equations:
+\begin{equation}
+\begin{aligned}
+\frac{dS}{dt}&=\Lambda+\kappa R+\xi V-(\lambda+\omega+\mu)S,\\[1mm]
+\frac{dV}{dt}&=\omega S-\bigl((1-\varepsilon_V)\lambda+\xi+\mu\bigr)V,\\[1mm]
+\frac{dE}{dt}&=\lambda S+(1-\varepsilon_V)\lambda V-(\sigma+\mu)E,\\[1mm]
+\frac{dA}{dt}&=\theta\sigma E-(\gamma_A+\alpha_A+\phi_A+\mu)A,\\[1mm]
+\frac{dI}{dt}&=(1-\theta)\sigma E-(\gamma_I+\rho+\alpha+\phi_I+\delta_I+\mu)I,\\[1mm]
+\frac{dH}{dt}&=\rho I-(\gamma_H+\alpha_H+\delta_H+\mu)H,\\[1mm]
+\frac{dT}{dt}&=\alpha_A A+\alpha I+\alpha_H H-(\gamma_T+\mu)T,\\[1mm]
+\frac{dQ}{dt}&=\phi_A A+\phi_I I+\phi_H H-(\gamma_Q+\mu)Q,\\[1mm]
+\frac{dR}{dt}&= \gamma_A A + \gamma_I I + \gamma_H H + \gamma_T T + \gamma_Q Q - (\kappa + \mu)R.
+\end{aligned}
+\label{eq:flu_model}
+\end{equation}
+The total population meets
+\[
+N(t)=S+V+E+A+I+H+T+Q+R,
+\]
+and the climatic transmission rate $\beta(t)$ is only involved in the force of infection $\lambda(t)$.
+
+\clearpage
+\begin{table}[!ht]
+\centering
+\caption{\textbf{State variables and parameters of the nine-compartment influenza model}}
+\label{tab:flu_params}
+\begin{tabular}{@{}llp{7.2cm}@{}}
+\toprule
+\textbf{Symbol} & \textbf{Unit} & \textbf{Description} \\
+\midrule
+$S$ & persons & Susceptible individuals \\
+$V$ & persons & Vaccinated individuals \\
+$E$ & persons & Exposed (latent) individuals \\
+$A$ & persons & Asymptomatic infectious individuals \\
+$I$ & persons & Symptomatic infectious individuals \\
+$H$ & persons & Hospitalized individuals \\
+$T$ & persons & Individuals on antiviral treatment \\
+$Q$ & persons & Quarantined / isolated individuals \\
+$R$ & persons & Recovered individuals with temporary immunity \\
+$\Lambda$ & persons day$^{-1}$ & Recruitment rate into the susceptible class \\
+$\mu$ & day$^{-1}$ & Natural death rate \\
+$\omega$ & day$^{-1}$ & Vaccination rate \\
+$\xi$ & day$^{-1}$ & Rate of vaccine-derived immunity loss \\
+$\varepsilon_V$ & -- & Vaccine efficacy ($0<\varepsilon_V<1$) \\
+$\beta_0$ & day$^{-1}$ & Baseline transmission coefficient \\
+$\delta_c$ & -- & Relative amplitude of climatic forcing ($0<\delta_c<1$) \\
+$\phi$ & day & Phase shift of seasonal forcing \\
+$\sigma$ & day$^{-1}$ & Progression rate out of the exposed class \\
+$\theta$ & -- & Fraction of infections that become asymptomatic \\
+$\eta_A,\eta_I,\eta_H,\eta_T,\eta_Q$ & -- & Relative transmissibility modifiers \\
+$\gamma_A,\gamma_I,\gamma_H,\gamma_T,\gamma_Q$ & day$^{-1}$ & Recovery rates from the respective classes \\
+$\alpha,\alpha_A,\alpha_H$ & day$^{-1}$ & Rates of initiation of antiviral therapy \\
+$\rho$ & day$^{-1}$ & Hospitalization rate from the symptomatic class \\
+$\phi_A,\phi_I,\phi_H$ & day$^{-1}$ & Quarantine / isolation rates \\
+$\delta_I,\delta_H$ & day$^{-1}$ & Disease-induced death rates \\
+$\kappa$ & day$^{-1}$ & Rate of waning of infection-acquired immunity \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+
+\subsection{Seasonal-forcing, observation, spatial and ensemble layers}\label{sec:architecture_layers}
+
+The transmission rate in \eqref{eq:flu_model} is expressed as $\beta(t)=\beta_0 f(t)$, with $f(t)>0$ being a periodic function with annual mean $=1$ that was fitted to twelve monthly knots (Section~\ref{sec:data_fitting}, equation~\eqref{eq:spline_forcing}). The time-averaged transmission rate is $\beta_0$ and in accordance with this, all threshold results of Section~\ref{sec:justification} are considered when using $\beta=\beta_0$; the Harmattan wave and the main wave are captured by $f(t)$. Three bookkeeping integrals are used for the accumulation of new symptomatic infections, admissions and deaths \eqref{eq:bookkeeping} and the observation model \eqref{eq:observation} maps the weekly increments to reported counts. The spatial layer assigns each national sample path to the 37 states, and calculates the North, the South and the national totals as sums of states to ensure coherent forecasts at state and national levels. Finally, a probabilistic layer is introduced, which is composed of two mechanistic members (one-year and four-year immunity) and an analogue-season statistical benchmark, with weights and an interval recalibration factor selected by time-ordered validation (Section~\ref{sec:validation_design}).
+
+\section{Model Justification}\label{sec:justification}
+
+\subsection{Epidemiological and data-driven justification}
+
+The model structure is directly inspired by the characteristics of the surveillance data and the needs of the forecasting task. First, the data contain three observed quantities (cases, hospitalisations and deaths), so the model contains explicit pathways from symptomatic infection to hospitalisation ($I\to H$) and to death ($\delta_I I$, $\delta_H H$); the observed hospitalisation and death ratios were almost constant within and between seasons (Figure~\ref{fig:F10}), supporting fixed observation fractions. Second, there is a significant proportion of influenza infections that are asymptomatic or not noticed and thus transmission is split between the asymptomatic class $A$ and the reporting fraction $p_c$. Third, the policy issues for the challenge are questions about isolation, antiviral treatment and vaccination: represented by the classes $Q$, $T$ and $V$ with corresponding infectiousness modifiers. Finally, each season has two waves, one in September--November, and one in December--January (Figures~\ref{fig:F1} and~\ref{fig:F2}), and there is no way that a single annual cosine could produce two peaks, thus the transmission rate is forced with a flexible periodic spline. Fifth, the epidemic timing is ordered by climate zone and the severity is ordered by the healthcare accessibility (Figures~\ref{fig:F4} and~\ref{fig:F7}), justifying a spatial layer based on week-specific state shares and state severity ratios. Finally, there is reduced immunity, $\kappa$ and the recovered class $R$ make it possible to have repeated seasons within a population.
+
+The model is mathematically well posed and interpretable. It is shown that solutions are non-negative and bounded in a positively invariant set, the basic reproduction number is obtained in closed form, the disease-free equilibrium is proved to be locally and globally stable and that the endemic equilibria and conditions of backward bifurcation are characterised. Numerical verification of all analytical results was also performed for random sets of parameters (repository script \texttt{check\_theory.py}).
+
+
+
+
+\subsection{Positivity and Boundedness of Solutions}
+
+
+To ensure the validity of the mathematical and epidemiological setting of the influenza transmission model, we first prove that the influenza transmission model is constructed in a way that ensures the non-negativity of all state variables for all time t>0, when the initial conditions are also non-negative. After this, we set an upper bound on the total population. This step makes sure that all trajectories remain within realistic limits and guarantees that the system's biological domain is positively invariant. The existence and uniqueness of solutions are proved using classical theory of ordinary differential equations. Finally, using a differential inequality and Gronwall's inequality \cite{hartman2002ode} we obtain the population bounds.
+
+
+
+\begin{theorem}[Positivity]
+\label{thm:influenza_positivity}
+
+Let the initial conditions satisfy
+
+\[
+\begin{aligned}
+&S(0)>0,\quad V(0)>0,\quad E(0)>0,\quad A(0)>0,\quad I(0)>0,\\
+&H(0)>0,\quad T(0)>0,\quad Q(0)>0,\quad R(0)>0.
+\end{aligned}
+\]
+
+For this, the solution to system~\eqref{eq:flu_model} will be positive for $t>0$.
+
+\end{theorem}
+
+\begin{proof}
+
+
+If $N(t)>0$ the right-hand side of system$~\eqref{eq:flu_model}$ have continuous derivatives with respect to the state variables in the non-negative state space. Therefore, they are locally Lipschitz continuous with respect to these variables. Using Picard–Lindelöf theorem, it can be shown that the system has a unique local solution in a maximal interval, [0, Tmax) $\cite{hartman2002ode}.$
+
+
+
+We now prove that on this interval all the state variables are positive.
+
+From the definition of the seasonal transmission coefficient,
+
+$$
+\beta(t)=\beta_0\left(1+\delta_c\cos\left(\frac{2\pi(t-\phi)}{365}\right)\right),
+$$
+
+we assume
+
+$$
+\beta_0>0,\qquad 0\leq\delta_c\leq1.
+$$
+
+Consequently, $\beta(t)\geq0$ for all $t\geq0$. Since all state variables are initially non-negative, the force of infection
+
+$$
+\lambda(t)=\frac{\beta(t)}{N(t)}
+\left(A+\eta_I I+\eta_H H+\eta_T T+\eta_Q Q\right)
+$$
+
+is also non-negative for all time when $N(t)>0$.
+
+Take the susceptible population first. From system~\eqref{eq:flu_model},
+
+$$
+\frac{dS}{dt}
+=
+\Lambda+\kappa R+\xi V-(\lambda+\omega+\mu)S.
+$$
+
+Determine the integrating factor:
+
+$$
+\Phi_S(t)
+=
+\exp\left(
+\int_0^t[\lambda(s)+\omega+\mu]\,ds
+\right)>0.
+$$
+
+Multiply equation for $S$ by $\Phi_S(t)$ to obtain
+
+$$
+\frac{d}{dt}\left[S(t)\Phi_S(t)\right]
+=
+\left[\Lambda+\kappa R(t)+\xi V(t)\right]\Phi_S(t)
+\geq0.
+$$
+
+Hence,
+
+$$
+S(t)\Phi_S(t)\geq S(0),
+$$
+
+and therefore
+
+$$
+S(t)\geq
+S(0)\exp\left(
+-\int_0^t[\lambda(s)+\omega+\mu]\,ds
+\right)>0.
+$$
+
+For the vaccinated class,
+
+$$
+\frac{dV}{dt}
+=
+\omega S-\left[(1-\varepsilon_V)\lambda+\xi+\mu\right]V.
+$$
+
+Since $S(t)>0$, define
+
+$$
+\Phi_V(t)
+=
+\exp\left(
+\int_0^t
+[(1-\varepsilon_V)\lambda(s)+\xi+\mu]\,ds
+\right)>0.
+$$
+
+Then
+
+$$
+\frac{d}{dt}\left[V(t)\Phi_V(t)\right]
+=
+\omega S(t)\Phi_V(t)\geq0.
+$$
+
+Consequently,
+
+$$
+V(t)\geq
+V(0)\exp\left(
+-\int_0^t
+[(1-\varepsilon_V)\lambda(s)+\xi+\mu]\,ds
+\right)>0.
+$$
+
+For the exposed population,
+
+$$
+\frac{dE}{dt}
+=
+\lambda S+(1-\varepsilon_V)\lambda V-(\sigma+\mu)E.
+$$
+
+The incidence terms
+
+$$
+\lambda S+(1-\varepsilon_V)\lambda V
+$$
+
+are non-negative. Hence, the integrating factor is $e^{(\sigma+\mu)t}$, so that,
+
+$$
+\frac{d}{dt}
+\left[E(t)e^{(\sigma+\mu)t}\right]
+=
+\left[
+\lambda(t)S(t)
++
+(1-\varepsilon_V)\lambda(t)V(t)
+\right]
+e^{(\sigma+\mu)t}
+\geq0.
+$$
+
+Hence,
+
+$$
+E(t)\geq E(0)e^{-(\sigma+\mu)t}>0.
+$$
+
+The asymptomatic infectious class is the class whose individuals are infectious, but not showing symptoms.
+
+$$
+\frac{dA}{dt}
+=
+\theta\sigma E
+-
+(\gamma_A+\alpha_A+\phi_A+\mu)A.
+$$
+
+Since $E(t)>0$,
+
+$$
+A(t)\geq
+A(0)
+e^{-(\gamma_A+\alpha_A+\phi_A+\mu)t}>0.
+$$
+
+Similarly, for the symptomatic infectious class,
+
+$$
+\frac{dI}{dt}
+=
+(1-\theta)\sigma E
+-
+(\gamma_I+\rho+\alpha+\phi_I+\delta_I+\mu)I,
+$$
+
+and therefore
+
+$$
+I(t)\geq
+I(0)
+e^{-(\gamma_I+\rho+\alpha+\phi_I+\delta_I+\mu)t}>0.
+$$
+
+For this class who is hospitalized,
+
+$$
+\frac{dH}{dt}
+=
+\rho I
+-
+(\gamma_H+\alpha_H+\delta_H+\mu)H.
+$$
+
+Since $\rho I(t)\geq0$,
+
+$$
+H(t)\geq
+H(0)
+e^{-(\gamma_H+\alpha_H+\delta_H+\mu)t}>0.
+$$
+
+The treated class meets
+
+$$
+\frac{dT}{dt}
+=
+\alpha_AA+\alpha I+\alpha_HH-(\gamma_T+\mu)T.
+$$
+
+All of the source terms are positive. Thus,
+
+$$
+T(t)\geq T(0)e^{-(\gamma_T+\mu)t}>0.
+$$
+
+Likewise, in the quarantined class,
+
+$$
+\frac{dQ}{dt}
+=
+\phi_AA+\phi_I I+\phi_HH-(\gamma_Q+\mu)Q,
+$$
+
+so that
+
+$$
+Q(t)\geq Q(0)e^{-(\gamma_Q+\mu)t}>0.
+$$
+
+Lastly, the recovered class is correct
+
+$$
+\frac{dR}{dt}
+=
+\gamma_AA+\gamma_I I+\gamma_HH+\gamma_TT+\gamma_QQ
+-(\kappa+\mu)R.
+$$
+
+Now, all source terms are positive,
+
+$$
+R(t)\geq R(0)e^{-(\kappa+\mu)t}>0.
+$$
+
+Thus, at each point in the maximal interval [0,Tmax), each state variable is strictly positive. Of particular interest is that $N(t) > 0$ on this interval, which implies that the force of infection $\lambda(t)$ is well defined. Below, the total population is bounded which eliminates finite-time blow-up and results in $T_{\max}=\infty$. For this reason, all the solutions are positive for all $t>0$.
+
+\end{proof}
+
+\begin{theorem}[Boundedness]
+\label{thm:influenza_boundedness}
+
+All solutions of system~\eqref{eq:flu_model} with non-negative initial conditions are bounded for all $t>0$.
+
+\end{theorem}
+
+\begin{proof}
+
+Let
+
+$$
+N(t)=S(t)+V(t)+E(t)+A(t)+I(t)+H(t)+T(t)+Q(t)+R(t)
+$$
+
+Indicate the total population of humans.
+
+
+Consider the nine equations of system$~\eqref{eq:flu_model}~$ together, the internal transfer terms will all be canceled. In particular, if these equations are added together, the terms for vaccination, infection, disease progression, and terms for treatment, quarantine, recovery, and loss of immunity are eliminated. So we have achieved the following:
+
+
+
+$$
+\frac{dN}{dt}
+=
+\Lambda
+-
+\mu N
+-
+\delta_I I
+-
+\delta_H H.
+$$
+
+Since
+
+$$
+\delta_I I\geq0,
+\qquad
+\delta_H H\geq0,
+$$
+
+it follows that
+
+$$
+\frac{dN}{dt}
+\leq
+\Lambda-\mu N.
+$$
+
+Write a comparison equation
+
+$$
+\frac{d\widetilde N}{dt}
+=
+\Lambda-\mu\widetilde N.
+$$
+
+Its solution is
+
+$$
+\widetilde N(t)
+=
+\frac{\Lambda}{\mu}
++
+\left(
+N(0)-\frac{\Lambda}{\mu}
+\right)e^{-\mu t}.
+$$
+
+Using the comparison principle, or, alternatively, Gronwall's inequality \cite{hartman2002ode}, one can obtain the following. 
+
+$$
+N(t)
+\leq
+\frac{\Lambda}{\mu}
++
+\left(
+N(0)-\frac{\Lambda}{\mu}
+\right)e^{-\mu t}.
+$$
+
+Thus,
+
+$$
+N(t)
+\leq
+\max\left\{
+N(0),\frac{\Lambda}{\mu}
+\right\}
+\qquad\text{for all }t\geq0.
+$$
+
+Furthermore,
+
+$$
+\limsup_{t\to\infty}N(t)
+\leq
+\frac{\Lambda}{\mu}.
+$$
+
+So, the total population is uniformly bounded from above. Because all the compartments are non-negative, and all the state variables are equal to a sum.
+
+$$
+0\leq X(t)\leq N(t),
+\qquad
+X(t)\in\{S,V,E,A,I,H,T,Q,R\},
+$$
+
+Each individual compartment is also enclosed.
+
+Therefore, the following region is the biologically feasible region:
+
+$$
+\Omega
+=
+\left\{
+(S,V,E,A,I,H,T,Q,R)\in\mathbb{R}_+^9:
+N\leq\frac{\Lambda}{\mu}
+\right\}
+$$
+
+is a positive invariant, attracting. In more general form, if the initial population size is an arbitrary non-negative number, the sharper invariant bound is
+
+$$
+N(t)\leq
+\max\left\{
+N(0),\frac{\Lambda}{\mu}
+\right\}.
+$$
+
+Therefore, the influenza model has solutions that are bounded in $t\geq0$ and are biologically feasible.
+
+\end{proof}
+
+These positivity and boundedness results are in line with the fact that the model is still epidemiologically well posed. All trajectories that start in the region of non-negative state space stay non-negative and cannot increase indefinitely. For this reason, all subsequent model analyses including disease-free dynamics, reproduction number, sensitivity analysis and forecasting simulations will use the biologically relevant region $\Omega$.
+
+
+
+
+%%%%%%%
+
+
+\subsection{Invariant Region of the Model}
+
+\begin{theorem}
+\label{thm:influenza_invariant}
+
+The solutions of the influenza model are feasible for all $t>0$ if they
+enter the invariant region $\Omega\subset\mathbb{R}_{+}^{9}$.
+\end{theorem}
+
+\begin{proof}
+
+To prove that every feasible solution for the influenza model remains uniformly bounded within the positively invariant region $\Omega\subset\mathbb{R}_{+}^{9}$, we must establish that no trajectory can escape this domain or grow indefinitely. Our objective is to demonstrate that every possible solution to the influenza model is uniformly bounded inside the positively invariant set $\Omega\subset\mathbb{R}_{+}^{9}$.
+
+
+
+Define the feasible region as
+
+\[
+\begin{aligned}
+\Omega=\{ &(S(t),V(t),E(t),A(t),I(t),H(t),T(t),Q(t),R(t))
+\in\mathbb{R}_{+}^{9}:\\
+&S(t)\geq0,\;V(t)\geq0,\;E(t)\geq0,\;A(t)\geq0,\;I(t)\geq0,\\
+&H(t)\geq0,\;T(t)\geq0,\;Q(t)\geq0,\;R(t)\geq0,\\
+&N(t)\leq \frac{\Lambda}{\mu}\}.
+\end{aligned}
+\]
+
+The total human population is given by
+
+\[
+N(t)=S(t)+V(t)+E(t)+A(t)+I(t)+H(t)+T(t)+Q(t)+R(t).
+\]
+
+Differentiating $N(t)$ with respect to time gives
+
+\[
+\begin{aligned}
+\frac{dN}{dt}
+={}&\frac{dS}{dt}+\frac{dV}{dt}+\frac{dE}{dt}
++\frac{dA}{dt}+\frac{dI}{dt}+\frac{dH}{dt}\\
+&+\frac{dT}{dt}+\frac{dQ}{dt}+\frac{dR}{dt}.
+\end{aligned}
+\]
+
+Substituting the differential equations of the influenza model and
+collecting like terms, all internal transfer terms cancel. Hence,
+
+\[
+\frac{dN}{dt}
+=
+\Lambda-\mu N(t)-\delta_I I-\delta_H H.
+\]
+
+Since $\delta_I I\geq0$ and $\delta_H H\geq0$, it follows that
+
+\[
+\frac{dN}{dt}\leq\Lambda-\mu N(t).
+\]
+
+Solving the corresponding differential inequality using the integrating
+factor method with the initial condition $N(0)$ gives
+
+\[
+N(t)
+\leq
+\frac{\Lambda}{\mu}
++
+\left(
+N(0)-\frac{\Lambda}{\mu}
+\right)e^{-\mu t}.
+\]
+
+Therefore,
+
+\[
+\limsup_{t\rightarrow\infty}N(t)
+\leq
+\frac{\Lambda}{\mu}.
+\]
+
+In particular, if the initial population satisfies
+
+\[
+N(0)\leq\frac{\Lambda}{\mu},
+\]
+
+then
+
+\[
+0\leq N(t)\leq\frac{\Lambda}{\mu},
+\qquad t\geq0.
+\]
+
+Since every compartment is non-negative and each compartment is bounded
+above by the total population, we have
+
+\[
+0\leq S(t),V(t),E(t),A(t),I(t),H(t),T(t),Q(t),R(t)
+\leq\frac{\Lambda}{\mu}.
+\]
+
+Consequently, every solution that starts in $\Omega$ remains in $\Omega$
+for all $t\geq0$. Hence, $\Omega$ is positively invariant under the
+influenza model.
+
+\end{proof}
+
+%%%%%%
+
+\subsection{Basic Reproduction Number of the Influenza Model}
+
+To determine the basic reproduction number, which we represent as $R_0$, we calculate the average number of secondary cases that a single infected individual would produce when placed in an entirely susceptible population. This calculation accounts for the specific demographic features and immunization levels present at the disease-free equilibrium (DFE). By applying the next-generation matrix framework \cite{vandenDriessche2002}, we evaluate $R_0$ through a detailed analysis of the infected compartments.
+
+
+\[
+(E,A,I,H,T,Q).
+\]
+
+At the disease-free equilibrium, all infected compartments vanish, such that
+\[
+E^0=A^0=I^0=H^0=T^0=Q^0=R^0=0.
+\]
+The remaining equilibrium values are obtained from the $S$ and $V$ equations as
+\begin{equation}
+S^0=
+\frac{\Lambda(\xi+\mu)}
+{\mu(\omega+\xi+\mu)},
+\end{equation}
+and
+\begin{equation}
+V^0=
+\frac{\Lambda\omega}
+{\mu(\omega+\xi+\mu)}.
+\end{equation}
+Consequently,
+\begin{equation}
+N^0=S^0+V^0=\frac{\Lambda}{\mu}.
+\end{equation}
+
+Since both susceptible and vaccinated individuals can acquire infection, the effective susceptible population at the DFE is
+\begin{equation}
+S_{\mathrm{eff}}^0
+=
+S^0+(1-\varepsilon_V)V^0.
+\end{equation}
+Therefore,
+\begin{equation}
+\frac{S_{\mathrm{eff}}^0}{N^0}
+=
+\frac{\xi+\mu+(1-\varepsilon_V)\omega}
+{\omega+\xi+\mu}.
+\end{equation}
+
+For convenience, define the total exit rates from the infectious and intervention compartments by
+\begin{equation}
+K_A=\gamma_A+\alpha_A+\phi_A+\mu,
+\end{equation}
+\begin{equation}
+K_I=\gamma_I+\rho+\alpha+\phi_I+\delta_I+\mu,
+\end{equation}
+\begin{equation}
+K_H=\gamma_H+\alpha_H+\delta_H+\mu,
+\end{equation}
+\begin{equation}
+K_T=\gamma_T+\mu,
+\end{equation}
+and
+\begin{equation}
+K_Q=\gamma_Q+\mu.
+\end{equation}
+
+Using the ordering $(E,A,I,H,T,Q)$ for the infected subsystem, the matrix of new infection terms is
+\begin{equation}
+F=
+\begin{pmatrix}
+0 &
+\dfrac{\beta_0S_{\mathrm{eff}}^0\eta_A}{N^0} &
+\dfrac{\beta_0S_{\mathrm{eff}}^0\eta_I}{N^0} &
+\dfrac{\beta_0S_{\mathrm{eff}}^0\eta_H}{N^0} &
+\dfrac{\beta_0S_{\mathrm{eff}}^0\eta_T}{N^0} &
+\dfrac{\beta_0S_{\mathrm{eff}}^0\eta_Q}{N^0}
+\\[3mm]
+0&0&0&0&0&0\\
+0&0&0&0&0&0\\
+0&0&0&0&0&0\\
+0&0&0&0&0&0\\
+0&0&0&0&0&0
+\end{pmatrix}.
+\end{equation}
+
+The transition matrix is
+\begin{equation}
+V=
+\begin{pmatrix}
+\sigma+\mu&0&0&0&0&0\\
+-\theta\sigma&K_A&0&0&0&0\\
+-(1-\theta)\sigma&0&K_I&0&0&0\\
+0&0&-\rho&K_H&0&0\\
+0&-\alpha_A&-\alpha&-\alpha_H&K_T&0\\
+0&-\phi_A&-\phi_I&-\phi_H&0&K_Q
+\end{pmatrix}.
+\end{equation}
+
+The basic reproduction number is then given by the spectral radius of the next-generation matrix,
+\begin{equation}
+R_0=\rho(FV^{-1}).
+\end{equation}
+
+The asymptomatic pathway contributes
+\begin{equation}
+R_{0A}
+=
+\frac{\beta_0S_{\mathrm{eff}}^0}{N^0}
+\frac{\sigma}{\sigma+\mu}
+\theta
+\left[
+\frac{\eta_A}{K_A}
++
+\frac{\eta_T\alpha_A}{K_AK_T}
++
+\frac{\eta_Q\phi_A}{K_AK_Q}
+\right].
+\end{equation}
+
+The symptomatic pathway contributes
+\begin{equation}
+R_{0I}
+=
+\frac{\beta_0S_{\mathrm{eff}}^0}{N^0}
+\frac{\sigma}{\sigma+\mu}
+(1-\theta)
+\left[
+\frac{\eta_I}{K_I}
++
+\frac{\eta_H\rho}{K_IK_H}
++
+\frac{\eta_T}{K_T}
+\left(
+\frac{\alpha}{K_I}
++
+\frac{\alpha_H\rho}{K_IK_H}
+\right)
++
+\frac{\eta_Q}{K_Q}
+\left(
+\frac{\phi_I}{K_I}
++
+\frac{\phi_H\rho}{K_IK_H}
+\right)
+\right].
+\end{equation}
+
+Hence, the basic reproduction number is
+\begin{equation}
+\boxed{
+R_0=R_{0A}+R_{0I}.
+}
+\end{equation}
+
+Substituting the disease-free equilibrium quantities gives the explicit expression
+\begin{equation}
+\boxed{
+\begin{aligned}
+R_0={}&
+\frac{\beta_0
+\left[\xi+\mu+(1-\varepsilon_V)\omega\right]}
+{\omega+\xi+\mu}
+\frac{\sigma}{\sigma+\mu}
+\\
+&\times
+\Bigg\{
+\theta
+\left[
+\frac{\eta_A}{K_A}
++
+\frac{\eta_T\alpha_A}{K_AK_T}
++
+\frac{\eta_Q\phi_A}{K_AK_Q}
+\right]
+\\
+&\qquad +(1-\theta)
+\left[
+\frac{\eta_I}{K_I}
++
+\frac{\eta_H\rho}{K_IK_H}
++
+\frac{\eta_T}{K_T}
+\left(
+\frac{\alpha}{K_I}
++
+\frac{\alpha_H\rho}{K_IK_H}
+\right)
+\right.
+\\
+&\qquad\qquad\left.
++
+\frac{\eta_Q}{K_Q}
+\left(
+\frac{\phi_I}{K_I}
++
+\frac{\phi_H\rho}{K_IK_H}
+\right)
+\right]
+\Bigg\}.
+\end{aligned}
+}
+\label{eq:flu_R0}
+\end{equation}
+
+The seasonal transmission coefficient varies with time according to
+\[
+\beta(t)=
+\beta_0
+\left[
+1+\delta_c
+\cos\left(
+\frac{2\pi(t-\phi)}{365}
+\right)
+\right].
+\]
+Thus, a seasonally varying reproduction measure can be written as
+\begin{equation}
+R_0(t)
+=
+R_0
+\left[
+1+\delta_c
+\cos\left(
+\frac{2\pi(t-\phi)}{365}
+\right)
+\right].
+\end{equation}
+
+
+
+Consequently, $R_0$ establishes the fundamental threshold for transmission, whereas $R_0(t)$ reflects the fluctuating seasonal dynamics of influenza spread. Specifically, when $R_0<1$, the disease is unable to maintain itself under steady-state baseline conditions. Conversely, whenever $R_0(t)$ climbs higher than unity, it marks specific intervals where seasonal influences actively drive epidemic expansion.
+
+
+
+
+
+\subsection{Local Asymptotic Stability of the Disease-Free Equilibrium}
+\label{LAS_flu}
+
+The local asymptotic stability of the disease-free equilibrium (DFE) dictates whether a minor introduction of influenza infection into the community will die out. This analysis examines the autonomous system derived by setting $\beta(t)\equiv\beta_0$ (which implies that $\delta_c=0$). Additionally, $\eta_A$ represents the relative infectiousness of the $A$ class, which remains consistent with the $R_0$ formulated in $\eqref{eq:flu_R0} ($noting that if $\eta_A=1$, this matches the expression for $\lambda(t)$ as originally presented). Every parameter remains non-negative, and the values for $\Lambda,\mu,\sigma$ are strictly greater than zero.
+
+
+
+\begin{theorem}\label{thm:LAS_flu}
+Let
+\[
+E_0=(S^0,V^0,0,0,0,0,0,0,0),\qquad
+S^0=\frac{\Lambda(\xi+\mu)}{\mu(\omega+\xi+\mu)},\quad
+V^0=\frac{\Lambda\omega}{\mu(\omega+\xi+\mu)},
+\]
+be the disease-free equilibrium of the influenza model. Then $E_0$ is locally
+asymptotically stable if $R_0<1$ and unstable if $R_0>1$, where $R_0$ is given
+by \eqref{eq:flu_R0}.
+\end{theorem}
+
+\begin{proof}
+
+At $E_0$ we have $N^0=\Lambda/\mu$ and $\lambda=0$. Since $\lambda$ is a product
+of an infectious sum (which vanishes at $E_0$) with $1/N$, we have
+$\partial\lambda/\partial N=0$ at $E_0$, and the only non-zero derivatives of
+$\lambda$ are those with respect to $A,I,H,T,Q$:
+$\partial\lambda/\partial x=\beta_0\eta_x/N^0$ for $x\in\{A,I,H,T,Q\}$.
+Define
+\[
+a_S=\frac{\beta_0S^0}{N^0},\qquad
+a_V=\frac{(1-\varepsilon_V)\beta_0V^0}{N^0},\qquad
+b_0=a_S+a_V=\frac{\beta_0\left[\xi+\mu+(1-\varepsilon_V)\omega\right]}{\omega+\xi+\mu}.
+\]
+With the ordering $(S,V,E,A,I,H,T,Q,R)$, the Jacobian is
+\[
+J(E_0)=
+\begin{bmatrix}
+-(\omega+\mu) & \xi & 0 & -a_S\eta_A & -a_S\eta_I & -a_S\eta_H & -a_S\eta_T & -a_S\eta_Q & \kappa\\
+\omega & -(\xi+\mu) & 0 & -a_V\eta_A & -a_V\eta_I & -a_V\eta_H & -a_V\eta_T & -a_V\eta_Q & 0\\
+0&0&-(\sigma+\mu)& b_0\eta_A & b_0\eta_I & b_0\eta_H & b_0\eta_T & b_0\eta_Q & 0\\
+0&0&\theta\sigma&-K_A&0&0&0&0&0\\
+0&0&(1-\theta)\sigma&0&-K_I&0&0&0&0\\
+0&0&0&0&\rho&-K_H&0&0&0\\
+0&0&0&\alpha_A&\alpha&\alpha_H&-K_T&0&0\\
+0&0&0&\phi_A&\phi_I&\phi_H&0&-K_Q&0\\
+0&0&0&\gamma_A&\gamma_I&\gamma_H&\gamma_T&\gamma_Q&-(\kappa+\mu)
+\end{bmatrix}.
+\]
+
+
+The rows of the infected variables $X=(E,A,I,H,T,Q)$ have zero entries in the
+columns of $S$, $V$ and $R$. Reordering the variables as $(X;\,S,V,R)$ gives
+the block lower-triangular form
+\[
+J(E_0)\sim
+\begin{bmatrix}
+J_{\inf} & 0\\
+\ast & J_{2}
+\end{bmatrix},\qquad
+J_2=
+\begin{bmatrix}
+-(\omega+\mu) & \xi & \kappa\\
+\omega & -(\xi+\mu) & 0\\
+0&0&-(\kappa+\mu)
+\end{bmatrix},
+\]
+so the spectrum of $J(E_0)$ is the union of the spectra of $J_{\inf}$ and $J_2$.
+The matrix $J_2$ is block upper-triangular, with eigenvalue
+\[
+\lambda_1=-(\kappa+\mu)<0
+\]
+and the remaining two eigenvalues those of
+$\begin{bmatrix}-(\omega+\mu)&\xi\\ \omega&-(\xi+\mu)\end{bmatrix}$, whose
+trace is $-(\omega+\xi+2\mu)<0$ and whose determinant is
+$(\omega+\mu)(\xi+\mu)-\omega\xi=\mu(\omega+\xi+\mu)>0$. Hence both have
+strictly negative real parts. Therefore the stability of $E_0$ reduces to that
+of $J_{\inf}$.
+
+
+The infection submatrix is $J_{\inf}=F-\mathcal V$, with
+\[
+F=b_0\,e_1c^{\top},\qquad c=(0,\eta_A,\eta_I,\eta_H,\eta_T,\eta_Q)^{\top},
+\]
+\[
+\mathcal V=
+\begin{bmatrix}
+\sigma+\mu&0&0&0&0&0\\
+-\theta\sigma&K_A&0&0&0&0\\
+-(1-\theta)\sigma&0&K_I&0&0&0\\
+0&0&-\rho&K_H&0&0\\
+0&-\alpha_A&-\alpha&-\alpha_H&K_T&0\\
+0&-\phi_A&-\phi_I&-\phi_H&0&K_Q
+\end{bmatrix},
+\]
+where $e_1=(1,0,0,0,0,0)^{\top}$. The matrix $\mathcal V$ is lower triangular with
+positive diagonal and non-positive off-diagonal entries, hence a non-singular
+M-matrix, with $\mathcal V^{-1}\ge0$ and
+$\det\mathcal V=(\sigma+\mu)K_AK_IK_HK_TK_Q>0$.
+Solving $\mathcal V x=e_1$ by forward substitution gives
+\[
+x_E=\tfrac{1}{\sigma+\mu},\;
+x_A=\tfrac{\theta\sigma x_E}{K_A},\;
+x_I=\tfrac{(1-\theta)\sigma x_E}{K_I},\;
+x_H=\tfrac{\rho x_I}{K_H},\;
+x_T=\tfrac{\alpha_Ax_A+\alpha x_I+\alpha_Hx_H}{K_T},\;
+x_Q=\tfrac{\phi_Ax_A+\phi_Ix_I+\phi_Hx_H}{K_Q}.
+\]
+Since $F$ has rank one,
+\begin{equation}\label{eq:R0_rank1}
+R_0=\rho(F\mathcal V^{-1})=b_0\,c^{\top}\mathcal V^{-1}e_1
+=b_0\left(\eta_Ax_A+\eta_Ix_I+\eta_Hx_H+\eta_Tx_T+\eta_Qx_Q\right),
+\end{equation}
+and substituting $x_A,\dots,x_Q$ recovers exactly the expression
+\eqref{eq:flu_R0}, including the factor $\sigma/(\sigma+\mu)$.
+
+
+The characteristic polynomial of $J_{\inf}$ is
+\[
+P(\lambda)=\det(\lambda I-J_{\inf})=\lambda^6+d_1\lambda^5+d_2\lambda^4+d_3\lambda^3+d_4\lambda^2+d_5\lambda+d_6,
+\]
+with
+\[
+d_1=\operatorname{tr}(\mathcal V)-\operatorname{tr}(F)=(\sigma+\mu)+K_A+K_I+K_H+K_T+K_Q>0,
+\]
+because $F_{11}=0$. The constant term is
+\[
+d_6=\det(-J_{\inf})=\det(\mathcal V-F)=\det(\mathcal V)\det\!\left(I-F\mathcal V^{-1}\right)
+=\det(\mathcal V)\left(1-b_0c^{\top}\mathcal V^{-1}e_1\right),
+\]
+using $\det(I-uw^{\top})=1-w^{\top}u$ for the rank-one matrix
+$F\mathcal V^{-1}=b_0e_1c^{\top}\mathcal V^{-1}$. Thus
+\begin{equation}\label{eq:d6_flu}
+d_6=(\sigma+\mu)K_AK_IK_HK_TK_Q\,(1-R_0),
+\qquad \operatorname{sign}(d_6)=\operatorname{sign}(1-R_0).
+\end{equation}
+
+\textbf{Case 1: $R_0<1$.}
+Suppose, for contradiction, that $J_{\inf}$ has an eigenvalue $\lambda$ with
+$\operatorname{Re}\lambda\ge0$ and eigenvector $x\ne0$. Then
+$(\lambda I+\mathcal V)x=Fx=b_0(c^{\top}x)e_1$. The matrix $\lambda I+\mathcal V$
+is lower triangular with diagonal entries $\lambda+k$, $k>0$, hence invertible
+when $\operatorname{Re}\lambda\ge0$, and $c^{\top}x\neq0$ (otherwise $x=0$).
+Therefore
+\begin{equation}\label{eq:G_lambda}
+1=G(\lambda):=b_0\,c^{\top}(\lambda I+\mathcal V)^{-1}e_1 .
+\end{equation}
+Let $y=(\lambda I+\mathcal V)^{-1}e_1$. Forward substitution gives
+\[
+y_E=\tfrac{1}{\lambda+\sigma+\mu},\;
+y_A=\tfrac{\theta\sigma\,y_E}{\lambda+K_A},\;
+y_I=\tfrac{(1-\theta)\sigma\,y_E}{\lambda+K_I},\;
+y_H=\tfrac{\rho\,y_I}{\lambda+K_H},
+\]
+\[
+y_T=\tfrac{\alpha_Ay_A+\alpha y_I+\alpha_Hy_H}{\lambda+K_T},\qquad
+y_Q=\tfrac{\phi_Ay_A+\phi_Iy_I+\phi_Hy_H}{\lambda+K_Q}.
+\]
+Each $y_j$ is a sum of products of non-negative constants and factors
+$1/(\lambda+k)$ with $k>0$. Since $|\lambda+k|\ge k$ for $\operatorname{Re}\lambda\ge0$,
+induction along the order $E,A,I,H,T,Q$ gives $|y_j(\lambda)|\le y_j(0)=x_j$.
+Hence, by \eqref{eq:R0_rank1},
+\[
+|G(\lambda)|\le b_0\sum_{j}\eta_j x_j=R_0<1,
+\]
+This conflicts with \eqref{eq:G_lambda}. Consequently, every eigenvalue associated with $J_{\inf}$ possesses a strictly negative real part. In an equivalent manner, all Routh–Hurwitz criteria are satisfied for $P(\lambda)$. More specifically, $d_1,\dots,d_6>0$, which aligns perfectly with $\eqref{eq:d6_flu}$. Integrating all of these analytical stages demonstrates that all nine eigenvalues of $J(E_0)$ feature strictly negative real parts. Therefore, $E_0$ is locally asymptotically stable.
+
+
+
+\textbf{Case 2: $R_0>1$.}
+According to \eqref{eq:d6_flu}, we have $P(0)=d_6<0$, whereas $P(\lambda)\to+\infty$ holds true when $\lambda\to+\infty$. Applying the intermediate value theorem guarantees that $P$ possesses a positive real root. Consequently, $J_{\inf}$, and by extension $J(E_0)$, features an eigenvalue that contains a positive real part. It follows that $E_0$ is unstable.
+\end{proof}
+
+\begin{remark}
+When $R_0=1$, the system becomes non-hyperbolic because $d_6=0$, meaning that $\lambda=0$ serves as an eigenvalue. Consequently, linearisation cannot be used to analyze this scenario. For the seasonal framework where $\beta(t)=\beta_0[1+\delta_c\cos(2\pi(t-\phi)/365)]$, the linearisation at the DFE exhibits a period of $365$ days. In this case, stability depends on the Floquet multipliers of the infection subsystem instead of the eigenvalues of $J_{\inf}$. As a result, Theorem$~\ref{thm:LAS_flu}$ outlines the conditions for the baseline (unforced) threshold $R_0<1$, whereas the time-dependent threshold is represented by $R_0(t)$.
+\end{remark}
+
+\textbf{Conclusion.} The linearization around $E_0$ decouples into a stable $(S,V,R)$-block and a distinct infection block, $J_{\inf}=F-\mathcal V$. The stable block yields the eigenvalue $-(\kappa+\mu)$ alongside the two solutions to the quadratic characteristic equation $\lambda^2+(\omega+\xi+2\mu)\lambda+\mu(\omega+\xi+\mu)=0$. Meanwhile, the overall stability of the infection block is determined precisely by the basic reproduction number, $R_0$, via the determinant relation $d_6=\det(\mathcal V)(1-R_0)$. Consequently, the disease-free equilibrium remains locally asymptotically stable when $R_0<1$ and becomes unstable when $R_0>1$. This behavior perfectly matches the next-generation matrix framework outlined by $\cite{vandenDriessche2002}.$
+
+
+
+
+%%%%%%%%%%%%%
+
+\subsection{Endemic Equilibrium Point of the Influenza Model}
+\label{endemic_flu}
+
+The endemic equilibrium (EE) describes a situation where influenza remains active within the population at stable, unchanging levels. Mirroring the approach used for the local stability analysis, we fix the transmission rate such that $\beta(t)\equiv\beta_0$ (which implies that $\delta_c=0$). Additionally, we define $\eta_A$ as the comparative infectiousness of individuals in the $A$ class, and we assume that the vaccine efficacy parameter satisfies $\varepsilon_V<1$.
+
+ Define
+\[
+m_0=\omega+\xi+\mu,\qquad m_1=\xi+\mu+(1-\varepsilon_V)\omega,\qquad
+b_0=\frac{\beta_0\,m_1}{m_0}.
+\]
+
+\begin{theorem}\label{thm:EE_flu}
+Let $R_0$ be given by \eqref{eq:flu_R0}. The influenza model admits endemic
+equilibria $E^*$ (with $\lambda^*>0$) that correspond exactly to the positive
+roots of the quadratic
+\begin{equation}\label{eq:quad_flu}
+\mathcal F(\lambda)=a_2\lambda^2+a_1\lambda+a_0=0,
+\end{equation}
+with coefficients given in \eqref{eq:coeffs_flu}. Consequently:
+\begin{enumerate}[label=(\roman*)]
+\item if $R_0>1$, there is exactly one endemic equilibrium;
+\item if $R_0<1$, there are two endemic equilibria if
+$a_1<0$ and $a_1^2>4a_2a_0$, one (of multiplicity two) if $a_1<0$ and
+$a_1^2=4a_2a_0$, and none otherwise; in particular, if $a_1\ge 0$ there is no
+endemic equilibrium;
+\item if $R_0=1$, an endemic equilibrium exists if and only if $a_1<0$.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+
+Let $\lambda^*$ denote the force of infection at equilibrium and set all
+derivatives to zero. If $\lambda^*=0$ then $E^*=0$ and, successively,
+$A^*=I^*=\dots=R^*=0$, which is the DFE. Hence an endemic equilibrium requires
+$\lambda^*>0$. Recall
+$K_A=\gamma_A+\alpha_A+\phi_A+\mu$, $K_I=\gamma_I+\rho+\alpha+\phi_I+\delta_I+\mu$,
+$K_H=\gamma_H+\alpha_H+\delta_H+\mu$, $K_T=\gamma_T+\mu$, $K_Q=\gamma_Q+\mu$.
+
+
+The equations for $A,I,H,T,Q,R$ are linear and triangular, giving
+\begin{equation}\label{eq:EE_chain}
+A^*=\pi_AE^*,\quad I^*=\pi_IE^*,\quad H^*=\pi_HE^*,\quad
+T^*=\pi_TE^*,\quad Q^*=\pi_QE^*,\quad R^*=\pi_RE^*,
+\end{equation}
+where
+\[
+\pi_A=\frac{\theta\sigma}{K_A},\quad
+\pi_I=\frac{(1-\theta)\sigma}{K_I},\quad
+\pi_H=\frac{\rho\,\pi_I}{K_H},
+\]
+\[
+\pi_T=\frac{\alpha_A\pi_A+\alpha\pi_I+\alpha_H\pi_H}{K_T},\quad
+\pi_Q=\frac{\phi_A\pi_A+\phi_I\pi_I+\phi_H\pi_H}{K_Q},
+\]
+\[
+\pi_R=\frac{\gamma_A\pi_A+\gamma_I\pi_I+\gamma_H\pi_H+\gamma_T\pi_T+\gamma_Q\pi_Q}{\kappa+\mu}.
+\]
+All $\pi_j>0$ (at least one of $\theta,1-\theta$ is positive and
+$\sigma,\mu>0$). Put
+\[
+\Phi=\eta_A\pi_A+\eta_I\pi_I+\eta_H\pi_H+\eta_T\pi_T+\eta_Q\pi_Q,\qquad
+\nu=1+\pi_A+\pi_I+\pi_H+\pi_T+\pi_Q+\pi_R .
+\]
+Comparing with $x_j=\pi_j/(\sigma+\mu)$ in \eqref{eq:R0_rank1} gives
+\begin{equation}\label{eq:R0_Phi}
+R_0=\frac{b_0\,\Phi}{\sigma+\mu}\quad\Longleftrightarrow\quad
+\beta_0\Phi\,m_1=(\sigma+\mu)\,m_0\,R_0 .
+\end{equation}
+
+
+Summing the equilibrium equations of $A,I,H,T,Q$ (the transfers
+$\rho,\alpha_\bullet,\phi_\bullet$ cancel) gives
+\[
+\sigma=\mu(\pi_A+\pi_I+\pi_H+\pi_T+\pi_Q)+\delta_I\pi_I+\delta_H\pi_H+G,
+\qquad G=\gamma_A\pi_A+\gamma_I\pi_I+\gamma_H\pi_H+\gamma_T\pi_T+\gamma_Q\pi_Q,
+\]
+so $G<\sigma$. Since $\pi_R=G/(\kappa+\mu)$, the constant
+\[
+\zeta:=\frac{\kappa\,\pi_R}{\sigma+\mu}=\frac{\kappa\,G}{(\kappa+\mu)(\sigma+\mu)}
+<\frac{\kappa\sigma}{(\kappa+\mu)(\sigma+\mu)}<1 .
+\]
+
+
+Let $D=(1-\varepsilon_V)\lambda^*+\xi+\mu$ and
+$M=D+(1-\varepsilon_V)\omega=(1-\varepsilon_V)\lambda^*+m_1$. From the $V$ and $E$
+equations,
+\[
+V^*=\frac{\omega S^*}{D},\qquad
+E^*=\frac{\lambda^*S^*M}{D(\sigma+\mu)} .
+\]
+Substituting into the $S$ equation with $R^*=\pi_RE^*$ and multiplying by $D$,
+\[
+\Lambda D=S^*\,\Delta(\lambda^*),\qquad
+\Delta(\lambda)=(\lambda+\omega+\mu)D-\xi\omega-\zeta\lambda M .
+\]
+Expanding,
+\[
+\Delta(\lambda)=(1-\varepsilon_V)(1-\zeta)\lambda^2
++\lambda\Bigl[(1-\varepsilon_V)\bigl((1-\zeta)\omega+\mu\bigr)+(1-\zeta)(\xi+\mu)\Bigr]
++\mu\,m_0,
+\]
+which is strictly positive for all $\lambda\ge0$ because $\zeta<1$ and
+$\varepsilon_V<1$. Hence
+\begin{equation}\label{eq:EE_SVE}
+S^*=\frac{\Lambda D}{\Delta(\lambda^*)},\qquad
+V^*=\frac{\Lambda\omega}{\Delta(\lambda^*)},\qquad
+E^*=\frac{\Lambda\lambda^*M}{(\sigma+\mu)\Delta(\lambda^*)},
+\end{equation}
+all strictly positive for every $\lambda^*>0$, and by \eqref{eq:EE_chain} so are
+all the other compartments.
+
+
+By \eqref{eq:EE_chain} and \eqref{eq:EE_SVE}, $N^*=S^*+V^*+\nu E^*$ with
+$S^*+V^*=\Lambda(D+\omega)/\Delta$. The consistency condition
+$\lambda^*N^*=\beta_0\Phi E^*$ becomes, after cancelling $\Lambda\lambda^*/\Delta>0$
+and multiplying by $\sigma+\mu$,
+\[
+(\sigma+\mu)(D+\omega)+\nu\lambda^*M-\beta_0\Phi M=0 .
+\]
+Expanding in $\lambda^*$ gives \eqref{eq:quad_flu} with
+\begin{equation}\label{eq:coeffs_flu}
+\begin{aligned}
+a_2&=\nu(1-\varepsilon_V)>0,\\
+a_1&=\nu\,m_1+(1-\varepsilon_V)\bigl[(\sigma+\mu)-\beta_0\Phi\bigr],\\
+a_0&=(\sigma+\mu)\,m_0-\beta_0\Phi\,m_1=(\sigma+\mu)\,m_0\,(1-R_0),
+\end{aligned}
+\end{equation}
+where the last equality uses \eqref{eq:R0_Phi}. Conversely, every root
+$\lambda^*>0$ of \eqref{eq:quad_flu} defines, through \eqref{eq:EE_chain} and
+\eqref{eq:EE_SVE}, a strictly positive equilibrium satisfying
+$\lambda^*=\beta_0\Phi E^*/N^*$. Moreover, at equilibrium
+$\mu N^*=\Lambda-\delta_II^*-\delta_HH^*\le\Lambda$, so $E^*\in\Omega$.
+
+
+Since $a_2>0$ and $a_0$ has the sign of $1-R_0$:
+\begin{itemize}
+\item If $R_0>1$, then $a_0<0$, so $\mathcal F(0)<0$ and $\mathcal F(\lambda)\to+\infty$.
+The product of the roots $a_0/a_2$ is negative, so there is exactly one positive
+root. This proves (i).
+\item If $R_0<1$, then $a_0>0$, so the roots have a positive product. They are
+positive if and only if they are real and their sum $-a_1/a_2$ is positive, i.e.\
+$a_1<0$ and $a_1^2\ge4a_2a_0$. This proves (ii).
+\item If $R_0=1$, then $a_0=0$ and the roots are $0$ and $-a_1/a_2$, the latter
+positive if and only if $a_1<0$. This proves (iii).
+\end{itemize}
+\end{proof}
+
+\begin{corollary}\label{cor:no_backward}
+If $\varepsilon_V=0$, then $a_1>0$ whenever $R_0<1$, so the model has no
+endemic equilibrium for $R_0\le 1$.
+\end{corollary}
+
+\begin{proof}
+For $\varepsilon_V=0$ we have $m_1=m_0$, so \eqref{eq:R0_Phi} gives
+$\beta_0\Phi=(\sigma+\mu)R_0<\sigma+\mu$ and hence
+$a_1=\nu m_0+(\sigma+\mu)-\beta_0\Phi>0$. Then $a_2,a_1>0$ and $a_0>0$ for $R_0<1$
+leave no positive root; for $R_0=1$, $a_0=0$ and $a_1>0$ leave only $\lambda=0$.
+\end{proof}
+
+\begin{remark}
+If $\varepsilon_V>0$, the coefficient $a_1$ may take a negative value because individuals in the vaccinated class still possess a level of remaining susceptibility. Under these conditions$, \eqref{eq:quad_flu}$ can yield two positive roots even when $R_0<1$. Consequently, keeping $R_0<1$ becomes a necessary requirement but is not enough on its own to guarantee disease eradication (a phenomenon known as backward bifurcation).
+\end{remark}
+
+\textbf{Conclusion.} At an endemic equilibrium every compartment is a positive
+multiple of the force of infection $\lambda^*$, which solves a single quadratic
+whose constant term is $(\sigma+\mu)(\omega+\xi+\mu)(1-R_0)$. Hence exactly one
+endemic equilibrium exists for $R_0>1$. For $R_0<1$ there are zero or two, the
+latter only when $a_1<0$ (possible only with imperfect vaccine protection,
+$\varepsilon_V>0$). This is consistent with the $R_0$ and DFE results already
+derived.
+
+
+%%%%%%%%%%%
+
+
+\subsection{Global Asymptotic Stability of the DFE of the Influenza Model}
+\label{GAS_flu}
+
+
+We investigate the long-term dynamics of the autonomous influenza framework when $\beta(t)\equiv\beta_0$ within the feasible domain $\Omega$, which represents a compact and positively invariant space. We assume that every parameter $\eta_j>0$ for each $j\in\{A,I,H,T,Q\}$ and that $\varepsilon_V\in[0,1)$. By defining $\mathcal V$, $c$, and $b_0$ as established during our local stability assessment, we introduce the constants $m_0=\omega+\xi+\mu$ and $m_1=\xi+\mu+(1-\varepsilon_V)\omega$.
+
+
+Define the weights
+\begin{equation}\label{eq:weights}
+\begin{aligned}
+w_T&=\frac{\eta_T}{K_T},\qquad w_Q=\frac{\eta_Q}{K_Q},\\
+w_H&=\frac{\eta_H+\alpha_Hw_T+\phi_Hw_Q}{K_H},\qquad
+w_A=\frac{\eta_A+\alpha_Aw_T+\phi_Aw_Q}{K_A},\\
+w_I&=\frac{\eta_I+\rho w_H+\alpha w_T+\phi_Iw_Q}{K_I},\qquad
+w_E=\frac{\theta\sigma w_A+(1-\theta)\sigma w_I}{\sigma+\mu},
+\end{aligned}
+\end{equation}
+that is, $w^\top=c^\top\mathcal V^{-1}$ (equivalently $\mathcal V^\top w=c$), where
+$w=(w_E,w_A,w_I,w_H,w_T,w_Q)^\top$. All weights are strictly positive. Moreover
+$w_E=c^\top\mathcal V^{-1}e_1$, so by \eqref{eq:R0_rank1}, $R_0=b_0w_E$. Define
+\begin{equation}\label{eq:R0bar}
+\bar R_0:=\beta_0w_E=R_0\,\frac{m_0}{m_1}\ \ge R_0,
+\end{equation}
+with $\bar R_0=R_0$ when $\varepsilon_V=0$.
+
+\begin{theorem}\label{thm:GAS_flu}
+When the basic reproduction ratio satisfies $\bar R_0\le 1$, the disease-free equilibrium designated by $E_0=(S^0,V^0,0,0,0,0,0,0,0)$ exhibits global asymptotic stability throughout the domain $\Omega$. More specifically, under the condition where $\varepsilon_V=0$ (or within the broader framework where $R_0\le m_1/m_0$), this disease-free equilibrium remains globally asymptotically stable provided that $R_0\le 1$ (or $R_0\le m_1/m_0$, respectively).
+\end{theorem}
+
+\begin{proof}
+Consider the Lyapunov function
+\[
+\mathcal L=w_EE+w_AA+w_II+w_HH+w_TT+w_QQ\ \ge0 .
+\]
+Write $S_{\mathrm{eff}}=S+(1-\varepsilon_V)V$, so that the new-infection term is
+$\lambda S_{\mathrm{eff}}$ with $\lambda=\beta_0\,c^\top X/N$ and $X=(E,A,I,H,T,Q)^\top$.
+Differentiating along solutions,
+\[
+\begin{aligned}
+\dot{\mathcal L}
+&=w_E\bigl[\lambda S_{\mathrm{eff}}-(\sigma+\mu)E\bigr]
++w_A\bigl[\theta\sigma E-K_AA\bigr]
++w_I\bigl[(1-\theta)\sigma E-K_II\bigr]\\
+&\quad+w_H\bigl[\rho I-K_HH\bigr]
++w_T\bigl[\alpha_AA+\alpha I+\alpha_HH-K_TT\bigr]\\
+&\quad+w_Q\bigl[\phi_AA+\phi_II+\phi_HH-K_QQ\bigr].
+\end{aligned}
+\]
+Collecting the coefficient of each infected variable and using
+\eqref{eq:weights}:
+\[
+\begin{aligned}
+E&:\ -(\sigma+\mu)w_E+\theta\sigma w_A+(1-\theta)\sigma w_I=0,\\
+A&:\ -K_Aw_A+\alpha_Aw_T+\phi_Aw_Q=-\eta_A,\qquad
+I:\ -K_Iw_I+\rho w_H+\alpha w_T+\phi_Iw_Q=-\eta_I,\\
+H&:\ -K_Hw_H+\alpha_Hw_T+\phi_Hw_Q=-\eta_H,\qquad
+T:\ -K_Tw_T=-\eta_T,\qquad Q:\ -K_Qw_Q=-\eta_Q .
+\end{aligned}
+\]
+Hence
+\begin{equation}\label{eq:Ldot_flu}
+\dot{\mathcal L}=w_E\lambda S_{\mathrm{eff}}-c^\top X
+=c^\top X\left[\bar R_0\,\frac{S_{\mathrm{eff}}}{N}-1\right],
+\end{equation}
+using $w_E\lambda S_{\mathrm{eff}}=w_E\beta_0(c^\top X)S_{\mathrm{eff}}/N$ and
+\eqref{eq:R0bar}. In $\Omega$, $S_{\mathrm{eff}}\le S+V\le N$, so
+\[
+\dot{\mathcal L}\le c^\top X\,(\bar R_0-1)\le0\qquad\text{whenever }\bar R_0\le1 .
+\]
+Moreover $\dot{\mathcal L}=0$ only if $c^\top X=0$. Indeed, if $c^\top X>0$, then
+at least one of $A,I,H,T,Q$ is positive, so
+$N-S_{\mathrm{eff}}=\varepsilon_VV+E+A+I+H+T+Q+R>0$, and the bracket in
+\eqref{eq:Ldot_flu} is strictly negative. Since all $\eta_j>0$,
+$c^\top X=0$ is equivalent to $A=I=H=T=Q=0$.
+
+\textbf{LaSalle's principle.} The set $\Omega$ is compact and positively invariant, and
+$\dot{\mathcal L}\le0$ on $\Omega$. By LaSalle's invariance principle
+\cite{LaSalle1976}, every solution converges to the largest invariant set
+$\mathcal M$ contained in $\{\dot{\mathcal L}=0\}$. On $\mathcal M$ we have
+$A=I=H=T=Q=0$ for all time, so $\dot A=\theta\sigma E=0$ and $\dot I=(1-\theta)\sigma E=0$.
+Since $\theta\sigma+(1-\theta)\sigma=\sigma>0$, this forces $E=0$. Then
+$\dot R=-(\kappa+\mu)R$ gives $R\to0$, and by invariance $R=0$ on $\mathcal M$.
+Thus $\mathcal M\subseteq\{E=A=I=H=T=Q=R=0\}$, and on $\mathcal M$
+\[
+\dot N=\Lambda-\mu N,\qquad \dot V=\omega N-(\omega+\xi+\mu)V,
+\]
+(using $S=N-V$), a linear system with globally stable equilibrium
+$N=\Lambda/\mu$, $V=V^0$, hence $S=S^0$. So every solution in $\mathcal M$ converges to
+$E_0$, and therefore the $\omega$-limit set of any solution in $\Omega$, being an
+invariant subset of $\mathcal M$, is $\{E_0\}$. This proves global attractivity.
+
+\textbf{Stability.} $\mathcal L\ge \min_j w_j\,\|X\|_1$ and $\dot{\mathcal L}\le0$, so
+$\|X(t)\|$ stays small if it is small initially. Then $R$ is driven by
+$\gamma X$ through $\dot R=\gamma^\top X-(\kappa+\mu)R$ and stays small, and
+$(S-S^0,V-V^0)$ obey a linear system with the stable matrix $J_2$ of the local
+analysis (restricted to $S,V$) forced by small terms, so it also stays small.
+Hence $E_0$ is Lyapunov stable, and together with global attractivity it is
+globally asymptotically stable in $\Omega$. For $\varepsilon_V=0$ we have
+$m_1=m_0$, so $\bar R_0=R_0$.
+\end{proof}
+
+\begin{remark}
+Because $\bar R_0\ge R_0$, the requirement $\bar R_0\le1$ imposes a stricter constraint than $R_0\le1$ whenever $\varepsilon_V>0$. This aligns with the potential for backward bifurcation demonstrated previously; specifically, when $\varepsilon_V>0$, endemic equilibria can exist even if $R_0<1$, meaning no global result applies universally across all states where $R_0<1$. Conversely, in the scenario where $\varepsilon_V=0$, Theorem$~\ref{thm:GAS_flu} combined with Corollary~\ref{cor:no_backward}$ establishes that $R_0\le1$ serves as the exact necessary and sufficient condition for global eradication. For the time-dependent seasonal framework, $\beta(t)$ replaces the constant parameter $\beta_0$, yielding the parallel condition that $\beta(t)w_E\le1$ must hold at all times $t$.
+\end{remark}
+
+\textbf{Conclusion.} The linear Lyapunov function $\mathcal L=w^\top X$ with
+$w^\top=c^\top\mathcal V^{-1}$ satisfies
+$\dot{\mathcal L}=c^\top X\,[\bar R_0S_{\mathrm{eff}}/N-1]\le0$ when $\bar R_0\le1$.
+By LaSalle's principle all infected classes and $R$ vanish, and
+$(S,V)\to(S^0,V^0)$. Hence the DFE is globally asymptotically stable when
+$\bar R_0=R_0m_0/m_1\le1$, which reduces to $R_0\le1$ for $\varepsilon_V=0$.
+
+
+%%%%%%%%%%%
+
+
+\section{Forecasting Methodology}\label{sec:forecasting_methodology}
+
+The forecasting methodology involves four steps: (1) the exploration of data provided and fitting of the mechanistic model to all available seasons (Section~\ref{sec:data_fitting}); (2) generation of probabilistic sample paths for a new season, using the fitted model, and an analogue-season benchmark (Section~\ref{sec:forecast_generation}); (3) coherent disaggregation to regions and states (Section~\ref{sec:spatial_layer}); and (4) time-ordered validation, which involves the selection of ensemble weights and the calibration of forecast intervals before the final 2026/27 forecasts are generated (Section~\ref{sec:validation_design}).
+
+\subsection{Data Analysis, Model Fitting and Parameter Estimation}\label{sec:data_fitting}
+
+The SVEAITHQR model was calibrated with the synthetic national influenza surveillance data released for the MAEPiMS Challenge 2026. This data consists of weekly reported case, hospital admission and mortality figures across three seasons: 2023/24 (moderate season), 2024/25 (high severity season) and 2025/26 (moderate to high severity season). These statistics are provided at the national level and at the regional level (geopolitical zones, climatic classifications, healthcare accessibility indices, etc.), which contain population size, regional metadata, etc. We strictly followed the Competition rules and only used the data provided in the Competition for the tasks of model fitting and model evaluation. No external surveillance datasets of influenza were used in the calibration process and existing literature was used to establish the values of fixed parameters, the details of which can be found in Table~\ref{tab:parameters}. All computational workflows were implemented using Python with the help of NumPy \cite{harris2020array}, pandas \cite{mckinney2010data}, SciPy \cite{virtanen2020scipy} and Matplotlib \cite{hunter2007matplotlib} libraries. All the source code (modules \texttt{data\_io.py}, \texttt{eda.py}, \texttt{model.py}, \texttt{fit\_national.py}, \texttt{report\_fit.py}, \texttt{fit\_state\_severity.py}, \texttt{forecast.py}, \texttt{validate.py} and \texttt{run\_forecast.py}) is published in the GitHub repository available in the Data and code availability statement (Section~\ref{s5}).
+
+
+
+\subsubsection{Data description and exploratory analysis}
+
+All 37 state series were complete by using internal consistency checks; all of the series had 156 weekly observations. There are no missing or negative cases, hospitalizations, or deaths and the sum of the state series equals the national counts. Also, the total number of people in the country ($N_0 = 229{,}501{,}935$) equals the sum of the number of people in all of the states, and does not change from season to season.
+The first of the two anomalies required direct adjustment to the data set. The data supplied is per ISO week, which starts on a Monday, while the competition requirements are on an epidemiological week, which is Sunday to Saturday. To overcome this conflict, each week was assigned to the epidemiological week beginning on the previous Sunday, because there is only a 1 week difference in two weeks. Second, the volume of the first week of each season is four to five times greater in each state than the second week with a median ratio of 4.3. This increase is not due to a real increase in disease transmission but rather to an artificial data collection scheme at the beginning of the season. For this reason, the data for week~1 was not included in the model fitting process.
+
+
+
+% here
+
+
+Data for the nation, by week, is shown in Figure$~\ref{fig:F1}$, and in Figure$~\ref{fig:F2}$, this same case series is shown on a continuous timeline. There are two separate surges in each tracking period. The primary wave runs from epidemiological week $14$ (early to mid-October) while the secondary wave associated with the Harmattan winds occurs in epidemiological week $27$ to $29$ (late December to mid-January). Between these two time frames, during weeks $21$ and $22$ there exists a clear trough.
+The Harmattan-driven surge accounted for $14.6\%$, $33.5\%$, and $16.5\%$ of the total above-baseline burden for the $2023/24$, $2024/25$, and $2025/26$ seasons, respectively. Documented attack rates reached $7.46\%$, $13.69\%$, and $9.69\%$ across the cycles. Severity metrics were also very consistent, ranging from $1.45\%$ to $1.56\%$ of cases hospitalized, $0.135\%$ to $0.143\%$ of cases resulting in death, and $9.1$ to $9.3$ deaths for each $100$ hospitalizations.
+These proportions are not seen to change much from one week to the next as shown in Figure$~\ref{fig:F10}$. This steady state is an appropriate state to consider for the next tracking state, in which fixed observation fractions are used. The initial rate of weekly expansion of the primary wave was $0.88$--$1.01$ and that of the Harmattan wave was $0.61$--$0.90$ per week. All three measures stay at a flat baseline during the period between outbreaks. The baseline number of cases per week is quite different from one season to the next, ranging between about $34{,}000$ and $8{,}500$ and $26{,}000$. These baseline shifts cannot be modeled natively in the core mathematical transmission framework, so we include them with a dedicated, independent background parameter.
+
+
+
+
+Data shows that the primary surge is earlier in the southern region and the peak on this main surge is higher in the southern region as compared to the northern region (Northern Nigeria comprising North-Central, FCT, North-East, and North-West regions), as shown in Figure$~\ref{fig:F3}.$ In contrast, there is a much more pronounced Harmattan related wave in the north.
+These events are directly influenced by the geographical climate zones as seen in figure$~\ref{fig:F4}$, and are in chronological sequence. The main wave is most intense in the tropical states before moving further to the savanna states, and ending in the states of the sahel. This entire process adds a definite lagtime of 2 to 3 weeks. The surge on the other hand, related to the Harmattan season, is much more simultaneous over all the studied boundaries. This regional south-north migration is apparent on a year-to-year basis through the state-by-state heat maps in Figure$~\ref{fig:F5}.$
+Distribution of resources and impacts on the environment can differ significantly across locations. In the first place, the total effect of the Harmattan period in the sahel states ranged between $22.5--44.1\%$ while in the tropical areas it decreased to $9.0--22.4\%$. Despite these differences, the overall attack rate for each single season was more or less uniform across the different climate zones, (see Figure$~\ref{fig:F6}$), suggesting that environmental conditions modify the overall amount of attack, but not the seasonality or the timing of the attack. Last but not least, Figure$~\ref{fig:F8}$ offers a succinct summary of the number of specific weeks, which are listed conveniently per climate zone, that each state has its capacity peak.
+
+
+Figure~\ref{fig:F7} illustrates the influence of the healthcare accessibility index. Regions with healthcare access have more hospitalisations per case ($r = 0.67$) and lower case fatality ratios ($r = -0.81$). These relationships remain even when researchers remove climate-zone averages ($r = 0.40$ and $r = -0.61$). Early links between healthcare access levels and the Harmattan proportion ($r = -0.54$) or the peak week of the wave ($r = -0.66$) vanish within individual climate zones ($r = -0.08$ and $r = -0.07$) showing that climate is a confounding factor. Thus healthcare access shapes disease severity, while climate controls when transmission occurs.
+
+Figure~\ref{fig:F9} shows that the variance of state counts during the inter‑epidemic plateau grows in proportion to the square of the mean with a log–log slope of $2.02$. This pattern points to negative binomial reporting noise with a median dispersion parameter of $k \approx 12$ and a variance, about forty times the mean which strongly rules out Poisson noise.
+
+
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.85\textwidth]{figure/F1_national_three_series}
+\caption{National weekly influenza cases, hospitalisations and deaths for the 2023/24, 2024/25 and 2025/26 seasons (logarithmic scale). The shaded first week marks the start-of-season artefact excluded from fitting.}
+\label{fig:F1}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{figure/F2_national_timeline}
+\caption{Continuous national weekly case series indexed by Sunday-start epidemiological weeks, showing the main wave (September--November) and the Harmattan wave (December--January) in each season.}
+\label{fig:F2}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{figure/F3_north_south}
+\caption{Weekly incidence per 100{,}000 in Northern and Southern Nigeria for each season.}
+\label{fig:F3}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{figure/F4_climate_timing}
+\caption{Incidence by climate zone, normalised to each curve's seasonal maximum, showing the tropical $\rightarrow$ savanna $\rightarrow$ sahel ordering of the main wave.}
+\label{fig:F4}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{figure/F5_state_heatmaps}
+\caption{State-level weekly incidence per 100{,}000 ($\log_{10}$ scale), with states ordered from tropical (top) through savanna to sahel (bottom).}
+\label{fig:F5}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.85\textwidth]{figure/F6_state_attack_mortality}
+\caption{Reported attack rate (left) and deaths per 100{,}000 (right) by state and season.}
+\label{fig:F6}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{figure/F7_hc_access_effects}
+\caption{Hospitalisations per 100 cases, case fatality ratio and Harmattan-wave share of the burden against the healthcare accessibility index, coloured by climate zone (all states and seasons).}
+\label{fig:F7}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.8\textwidth]{figure/F8_peak_weeks}
+\caption{Main-wave and Harmattan-wave peak weeks of each state by climate zone and season.}
+\label{fig:F8}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.55\textwidth]{figure/F9_noise_mean_variance}
+\caption{Mean--variance relation of weekly state case counts on the inter-epidemic plateau (weeks 36--52), compared with the Poisson line.}
+\label{fig:F9}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{figure/F10_severity_ratios}
+\caption{National weekly hospitalisations per case (\%) and deaths per 1{,}000 cases over the three seasons.}
+\label{fig:F10}
+\end{figure}
+
+\subsubsection{Observation model and fitting procedure}
+
+The entire framework uses days for time, with the first day being $t=0$ which is the Sunday of week~1 for each season. To link the mathematical model to the data, three bookkeeping integrals are added to the system. These particular additions are just to keep track and have no effect on the dynamics itself.
+
+
+\begin{equation}\label{eq:bookkeeping}
+\frac{dC_I}{dt} = (1-\theta)\sigma E, \qquad
+\frac{dC_H}{dt} = \rho I, \qquad
+\frac{dC_D}{dt} = \delta_I I + \delta_H H .
+\end{equation}
+These increase further symptomatic cases, new hospitalizations and subsequent deaths of influenza. The data from epidemiological week $w$ of season $s$ are given by
+
+
+\begin{equation}\label{eq:observation}
+Y^{c}_{w} \sim \mathrm{NB}\big(p_c [C_I]_w + B_{c,s},\,k_c\big),\qquad
+Y^{h}_{w} \sim \mathrm{NB}\big([C_H]_w + B_{h,s},\,k_h\big),\qquad
+Y^{d}_{w} \sim \mathrm{NB}\big([C_D]_w + B_{d,s},\,k_d\big).
+\end{equation}
+
+In this instance $p_c$ denotes the fraction of symptomatic cases that are officially recorded. In this model, no one is recorded as having been infected without showing symptoms while everyone who is admitted to hospital and dies is recorded accurately. The $B_{\cdot,s}$ parameters represent the preliminary background levels for the respective season. If the mean value of the negative binomial distribution is high, then $\log(Y+1)$ results in a nearly stable variance of approximately $1/k$. Hence, the estimation process maximises the likelihood function through weighted least squares of $\log(Y+1)$. Two successive reweighting steps are used to determine the weight for each individual data series, based on the inverse of its residual standard deviation.
+
+
+
+The seasonal transmission rate is
+\begin{equation}\label{eq:spline_forcing}
+\beta(t) = \beta_0 f(t), \qquad f(t) = \frac{\exp\{g(t)\}}{\frac{1}{365}\int_0^{365}\exp\{g(u)\}\,du},
+\end{equation}
+
+In this case, $g$ is a periodic cubic spline function that is defined at twelve knots $g_0, \dots, g_{11}$, equally distributed with $g_0 = 0$. The function is designed in such a way that $f(t) > 0$ and the function has an annual mean value of one. This will keep $\beta_0$ to be the average transmission rate over time. Consequently, the basic reproduction number $\eqref{eq:flu_R0}$, stability results for the disease-free equilibrium, and the endemic quadratic formulation continue to hold true for the value of $\beta = \beta_0$. Additionally, at the exact same time, the force of infection is exerted exactly as specified, with a coefficient of $A=1$ ($\eta_A = 1$).
+
+
+
+
+The first was with a two-harmonic forcing function, which proved inadequate. The amplitude was increased to the particular value where $\beta(t) = 0$ and it was not possible to get a good sense of the depth of the trough between the waves. Both of these limitations were overcome by using the spline formulation (16). Since the annual variation of the Harmattan wave has been noticed, the second differences of the knots $g_5, g_6, g_7$ which cover the period from early December to early February are used in each season to introduce a specific displacement $h_s$ into the model to account for this variation. In addition, each individual season has its own scale factor $m_s$ on top of the scaling of $\beta_0$. The reference season of 2023/24 is assigned base values of $m = 1$ and $h = 0$.
+
+
+
+Initially, in each season, the non-vaccinated population is split into a proportion $s_0$ that are susceptible and a proportion $r_0$ that are immune (placed in $R$). The $V$ compartment starts at its disease-free rate and $E_0$ is the number of seeds that is initially exposed. The $E_0$ value is the same for all seasons, as this decision was based on the seeds found in each season showing a near-perfect correlation with early-season forcing ($\vert{}r\vert{} > 0.97$) for all of them. For the three seasons, the epidemiological and forcing parameters were kept constant, that is, the three seasons were fitted jointly. On the other hand, the seasonally varying terms $m_s$, $h_s$, $s_0$ and the background terms vary seasonally. Optimization of the full vector of fitted parameters involved 459 weekly observations, over three series and three seasons, over weeks 2 to 52. Model integration was done using the LSODA solver with the function scipy.integrate.solve\_ivp \cite{virtanen2020scipy}. The trust-region reflective algorithm \cite{branch1999subspace} (\texttt{scipy.optimize.least\_squares}) was used to minimize the objective function. All parameters were tested on a log scale, and several starting points were used in the optimization process to avoid the risk of converging to a local minima. Finally, asymptotic 95\% confidence intervals for the parameters were computed at the optimum point using the Jacobian matrix at this optimum point as $\hat{s}^2(J^{\top}J)^{-1}$ and then retransformed to the natural scale, which included the penalty rows.
+
+
+
+
+The separate national figures of the community death rate $\delta_I$ and in-hospital death rate $\delta_H$ were not clearly separated. A strong negative correlation of -0.94 was found between these two parameters in the initial model fit, and this resulted in an eleven order of magnitude confidence interval for $\delta_H$. To address this problem, the in-hospital fatality ratio, $\delta_H/K_H$ was set to 0.05, which means $\delta_H$ was set to a constant of 0.0128 day$^{-1}$. So, only the free parameter $\delta_I$ remained, which was fitted.
+
+
+
+\subsubsection{Parameter values}
+
+The model parameters are listed in Table~\ref{tab:parameters}. The fixed parameters are selected to be similar to published studies concerning influenza. The natural death rate corresponds to a life expectancy of 55 years, close to the World Bank value of 54.4 years for Nigeria in 2023 \cite{worldbank2025lifeexp}. Viral shedding was assumed to peak on day 2 after infection \cite{carrat2008timelines} and the average shedding time of 4.80 days in volunteer challenge studies corresponds to the symptomatic recovery rate of $\gamma_I = 1/5$ day$^{-1}$. In the range of 16\% (4--28\%) of asymptomatic individuals that is implied by the outbreak investigations (see \cite{leung2015asymptomatic}), and the 33\% implied by the challenge studies symptomatic frequency (see \cite{carrat2008timelines}), the asymptomatic proportion $\theta = 0.30$ is intermediate. Wider heterogeneity is documented in \cite{furuya2016heterogeneous}. The recovery time is shorter under antiviral therapy, corresponding to the reduction in recovery time brought on by antiviral therapy with oseltamivir \cite{dobson2015oseltamivir} and the vaccine efficacy $\varepsilon_V = 0.6$ is in line with the pooled vaccine efficacy of 59\% for inactivated vaccine in adults \cite{osterholm2012efficacy}. The monthly loss of vaccine protection has been reported to be between 7-11\% over the course of the six months, consistent with what was found here \cite{ferdinands2017intraseason}. Assumptions, for the modeling include uptake, isolation, relative infectiousness, vaccination coverage and hospital recovery rates. Assumptions will explore intervention coverage in the sensitivity analysis.
+
+\setlength{\tabcolsep}{4pt}
+\begin{longtable}{p{1.5cm}p{4.6cm}p{4.3cm}p{1.9cm}p{2.0cm}}
+\caption{Parameters of the SVEAITHQR model Fitted values are maximum-likelihood estimates from the national data (2023/24 to 2025/26) and asymptotic 95\% confidence intervals. Fixed values are taken from, or chosen to be consistent with, the cited literature, or are modeling assumptions. $^{\dagger}$One year immunity; published estimates for seasonal influenza are 3-8 years \cite{truscott2012essential} (see text). $^{\ddagger}$Upper bound truncated at the feasible limit $s_0 \le 1$.}
+\label{tab:parameters}\\
+\hline
+Symbol & Description & Value (95\% CI) & Unit & Source\\ \hline
+\endfirsthead
+\hline
+Symbol & Description & Value (95\% CI) & Unit & Source\\ \hline
+\endhead
+\hline
+\endfoot
+$\mu$ & Natural death rate (life expectancy 55 yr) & $4.981\times10^{-5}$ & day$^{-1}$ & \cite{worldbank2025lifeexp}\\
+$\sigma$ & Progression rate from E (latent period 2 d) & 0.5 & day$^{-1}$ & \cite{lessler2009incubation,carrat2008timelines}\\
+$\theta$ & Asymptomatic fraction & 0.3 & -- & \cite{carrat2008timelines,leung2015asymptomatic,furuya2016heterogeneous}\\
+$\gamma_A$ & Recovery rate, asymptomatic & 0.25 & day$^{-1}$ & \cite{carrat2008timelines}\\
+$\gamma_I$ & Recovery rate, symptomatic (community) & 0.2 & day$^{-1}$ & \cite{carrat2008timelines}\\
+$\gamma_H$ & Recovery rate, hospitalised & 0.1429 & day$^{-1}$ & Assumed\\
+$\gamma_T$ & Recovery rate, on antiviral therapy & 0.25 & day$^{-1}$ & \cite{dobson2015oseltamivir}\\
+$\gamma_Q$ & Recovery rate, isolated & 0.2 & day$^{-1}$ & \cite{carrat2008timelines}\\
+$\alpha_A$ & Antiviral uptake rate, asymptomatic & $1.000\times10^{-3}$ & day$^{-1}$ & Assumed\\
+$\alpha$ & Antiviral uptake rate, symptomatic & 0.02 & day$^{-1}$ & Assumed\\
+$\alpha_H$ & Antiviral uptake rate, hospitalised & 0.1 & day$^{-1}$ & Assumed\\
+$\phi_A$ & Isolation rate, asymptomatic & $1.000\times10^{-3}$ & day$^{-1}$ & Assumed\\
+$\phi_I$ & Isolation rate, symptomatic & 0.05 & day$^{-1}$ & Assumed\\
+$\phi_H$ & Isolation rate, hospitalised & 0.05 & day$^{-1}$ & Assumed\\
+$\eta_I$ & Relative infectiousness of $I$ (reference $A$ = 1) & 1 & -- & Assumed\\
+$\eta_H$ & Relative infectiousness of $H$ & 0.2 & -- & Assumed\\
+$\eta_T$ & Relative infectiousness of $T$ & 0.5 & -- & Assumed\\
+$\eta_Q$ & Relative infectiousness of $Q$ & 0.1 & -- & Assumed\\
+$\varepsilon_V$ & Vaccine efficacy & 0.6 & -- & \cite{osterholm2012efficacy}\\
+$\omega$ & Vaccination rate & $1.000\times10^{-5}$ & day$^{-1}$ & Assumed\\
+$\xi$ & Waning rate of vaccine protection & $5.556\times10^{-3}$ & day$^{-1}$ & \cite{ferdinands2017intraseason}\\
+$\kappa$ & Waning rate of infection-acquired immunity & $2.740\times10^{-3}$ & day$^{-1}$ & Assumed$^{\dagger}$\\
+$\delta_H$ & Disease-induced death rate, hospitalised & 0.01278 & day$^{-1}$ & Assumed\\
+$\Lambda$ & Recruitment rate ($\mu N_0$) & $1.143\times10^{4}$ & persons day$^{-1}$ & $\mu N_0$\\
+$\beta_0$ & Mean transmission rate & 1.125 (0.8645, 1.463) & day$^{-1}$ & Fitted\\
+$g_{1}$ & Log-forcing spline knot 1 (day 30 after 1 July; $g_0=0$) & 0.2033 ($-$0.5764, 0.9829) & -- & Fitted\\
+$g_{2}$ & Log-forcing spline knot 2 (day 61 after 1 July; $g_0=0$) & 0.238 ($-$0.8771, 1.353) & -- & Fitted\\
+$g_{3}$ & Log-forcing spline knot 3 (day 91 after 1 July; $g_0=0$) & 0.383 ($-$0.7505, 1.516) & -- & Fitted\\
+$g_{4}$ & Log-forcing spline knot 4 (day 122 after 1 July; $g_0=0$) & 0.517 ($-$0.6376, 1.672) & -- & Fitted\\
+$g_{5}$ & Log-forcing spline knot 5 (day 152 after 1 July; $g_0=0$) & 1.124 ($-$0.03, 2.278) & -- & Fitted\\
+$g_{6}$ & Log-forcing spline knot 6 (day 182 after 1 July; $g_0=0$) & 2.225 (1.058, 3.391) & -- & Fitted\\
+$g_{7}$ & Log-forcing spline knot 7 (day 213 after 1 July; $g_0=0$) & 1.229 ($-6.863\times10^{-3}$, 2.466) & -- & Fitted\\
+$g_{8}$ & Log-forcing spline knot 8 (day 243 after 1 July; $g_0=0$) & 0.05575 ($-$1.112, 1.224) & -- & Fitted\\
+$g_{9}$ & Log-forcing spline knot 9 (day 274 after 1 July; $g_0=0$) & $-$0.3331 ($-$1.488, 0.8218) & -- & Fitted\\
+$g_{10}$ & Log-forcing spline knot 10 (day 304 after 1 July; $g_0=0$) & $-$0.3735 ($-$1.428, 0.6807) & -- & Fitted\\
+$g_{11}$ & Log-forcing spline knot 11 (day 335 after 1 July; $g_0=0$) & $-$0.2047 ($-$0.9301, 0.5207) & -- & Fitted\\
+$p_c$ & Reporting fraction of symptomatic infections & 0.1245 (0.09845, 0.1576) & -- & Fitted\\
+$\rho$ & Hospitalisation rate of $I$ & $4.516\times10^{-4}$ ($3.599\times10^{-4}$, $5.667\times10^{-4}$) & day$^{-1}$ & Fitted\\
+$\delta_I$ & Disease-induced death rate, community & $2.149\times10^{-5}$ ($1.558\times10^{-5}$, $2.963\times10^{-5}$) & day$^{-1}$ & Fitted\\
+$E_0$ & Exposed seed at season start & 286.5 (0.2145, $3.825\times10^{5}$) & persons & Fitted\\
+$s_0^{(23/24)}$ & Susceptible fraction at season start (2023/24) & 0.7241 (0.3979, 1$^{\ddagger}$) & -- & Fitted\\
+$B_c^{(23/24)}$ & Background weekly reported cases (2023/24) & $3.347\times10^{4}$ ($2.849\times10^{4}$, $3.932\times10^{4}$) & cases week$^{-1}$ & Fitted\\
+$B_h^{(23/24)}$ & Background weekly admissions (2023/24) & 495.2 (432.4, 567.2) & adm. week$^{-1}$ & Fitted\\
+$B_d^{(23/24)}$ & Background weekly deaths (2023/24) & 51.24 (43.45, 60.41) & deaths week$^{-1}$ & Fitted\\
+$m^{(24/25)}$ & Season transmission multiplier, 2024/25 & 0.5894 (0.4952, 0.7016) & -- & Fitted\\
+$h^{(24/25)}$ & Season Harmattan shift of spline knots 5--7, 2024/25 & $-$0.3169 ($-$0.4823, $-$0.1516) & -- & Fitted\\
+$s_0^{(24/25)}$ & Susceptible fraction at season start (2024/25) & 0.9999 (0.6473, 1$^{\ddagger}$) & -- & Fitted (bound)\\
+$B_c^{(24/25)}$ & Background weekly reported cases (2024/25) & 8169 (6849, 9743) & cases week$^{-1}$ & Fitted\\
+$B_h^{(24/25)}$ & Background weekly admissions (2024/25) & 120 (103.3, 139.4) & adm. week$^{-1}$ & Fitted\\
+$B_d^{(24/25)}$ & Background weekly deaths (2024/25) & 10.9 (8.981, 13.24) & deaths week$^{-1}$ & Fitted\\
+$m^{(25/26)}$ & Season transmission multiplier, 2025/26 & 0.7601 (0.6386, 0.9047) & -- & Fitted\\
+$h^{(25/26)}$ & Season Harmattan shift of spline knots 5--7, 2025/26 & $1.560\times10^{-3}$ ($-$0.1909, 0.194) & -- & Fitted\\
+$s_0^{(25/26)}$ & Susceptible fraction at season start (2025/26) & 0.9238 (0.5624, 1$^{\ddagger}$) & -- & Fitted\\
+$B_c^{(25/26)}$ & Background weekly reported cases (2025/26) & $2.525\times10^{4}$ ($2.150\times10^{4}$, $2.966\times10^{4}$) & cases week$^{-1}$ & Fitted\\
+$B_h^{(25/26)}$ & Background weekly admissions (2025/26) & 377.3 (329.4, 432.1) & adm. week$^{-1}$ & Fitted\\
+$B_d^{(25/26)}$ & Background weekly deaths (2025/26) & 35.18 (29.76, 41.59) & deaths week$^{-1}$ & Fitted\\
+\end{longtable}
+\setlength{\tabcolsep}{6pt}
+
+\subsubsection{Fitted model and derived quantities}
+
+The fitted model is compared to the data in Figure~\ref{fig:F11}. The model reflects the two-wave pattern of all three datasets in all three seasons. In every case the main wave peak is within one week of the peak. The coefficients of determination are 0.54, 0.84 and 0.85 for cases 0.88, 0.88 and 0.97 for hospitalisations and 0.83, 0.86 and 0.98 for deaths in the seasons 2023/24, 2024/25 and 2025/26 respectively. The accuracy of seasonal cumulative hospitalisations is reproduced within 1.1\% for the 2025/26 season (322,399 fitted, 326,034 observed). The highest differences are in the Harmattan wave. The model overestimate the Harmattan wave by 29\%, in the reference season (2023/24). During the severity 2024/25 season, it under estimates Harmattan wave reducing fitted cumulative cases by 25\%. The residual standard deviations are binomial with size parameters $k \approx 6.0$ $8.7$ and $6.1$ for cases, hospitalisations and deaths respectively.
+
+There are approximately 1 in 8 symptomatic infections reported (95\% CI 0.098–0.158), with the fitted reporting fraction. This fitted rate of hospitalisation is denoted as $\rho = 4.5 \times 10^{-4}$ per day, which indicates that 0.17\% of infected patients are hospitalised ($\rho/K_I$), and that the SIFR is 0.016\%, or $\delta_I + \rho\,\delta_H/K_H/K_I$. The basic reproduction number \eqref{eq:flu_R0} of the reference season is $4.44$ which is the radius of the next-generation matrix $FV^{-1}$ to within machine accuracy. I see that the corresponding values for 2024/25 and 2025/26 are $m_s\mathcal{R}_0 = 2.62$ and 3.37. The vaccination coverage is very low and so the global-stability threshold $\bar{\mathcal{R}}_0 = \mathcal{R}_0\, m_0/m_1 > \mathcal{R}_0$. If the endemic quadratic is set up at the fitted values, then $a_1 = 0.335 > 0$. Backward bifurcation, which requires $a_1 < 0$ when $\varepsilon_V > 0$ is therefore not possible at the fitted parameters, which resolves the question, about the sign of $a_1$.
+
+
+In Figure~\ref{fig:F12} the basic reproduction number is simply denoted by $\mathcal{R}_0$. The effective reproduction number for each season. The fitted forcing reaches its peak in about 184 days after 1 July, early January in the Harmattan period, and displays a smaller maximum forcing, in the main wave of September–October. The effective reproduction number starts at 1.5 at the beginning of each season, and drops below 1 when the susceptible population gets smaller after each wave.
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{figure/F11_national_fit}
+\caption{SVEAITHQR model (lines) fitted together with national cases, hospitalisations and deaths (points) in the three seasons, on a logarithmic scale. The first week of each season is excluded and marked with crosses.}
+\label{fig:F11}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{figure/F12_reproduction_numbers}
+\caption{Left: $\mathcal{R}_0(t)$ for each season, the seasonal basic reproduction number. Right: fitted effective reproduction number $\mathcal{R}_{\mathrm{eff}}(t)$ and dashed line at $\mathcal{R}_{\mathrm{eff}} = 1$.}
+\label{fig:F12}
+\end{figure}
+
+\subsubsection{State-level severity and healthcare accessibility}
+
+If the $I$ equation is integrated over a wave for state $i$ it yields $\begin{array}{c}\int I\,dt = (1-\theta)\sigma\int E\,dt / K_{I,i}\end{array}$. Thus the ratios of admissions and of deaths to reported cases, when the national rates $p_c$ and $\delta_H$ are known, yield the state hospitalisation rate $\rho_i$ and the state community death rate $\delta_{I,i}$, respectively, up to the factor 1/1009.As long as the national $p_c$ and $\delta_H$ are known, the ratios of admissions and of deaths to reported cases then allow us to determine exactly the state hospitalisation rate $\rho_i$ and the state community death rate $\delta_{I,i}$, respectively. Using above-background totals, and regressing on the healthcare accessibility index $h_i$ ($\bar{h} = 0.581$), these identities can be solved for each state and season, which reveals the trends.
+
+\begin{equation}\label{eq:state_severity}
+\log \rho_i = -7.602 + 0.843\,(h_i - \bar{h}), \qquad
+\log \delta_{I,i} = -10.842 - 4.191\,(h_i - \bar{h}).
+\end{equation}
+
+The fitted relations are plotted in fig:~\ref{fig:F13}. An increase in access to health care results in a higher rate of hospitalisation. Sharp decreases community mortality, as in Figure~\ref{fig:F7}. As a consistency check, the mean state hospitalisation rate \((5.1 \times 10^{-4}\ \text{day}^{-1})\) agrees with the fitted \(\rho\) \((4.5 \times 10^{-4}\ \text{day}^{-1})\).
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{figure/F13_state_severity}
+\caption{State hospitalisation rate $\rho_i$ (left) and community death rate $\delta_{I,i}$ (right) as a function of the healthcare accessibility index, for all states and three seasons, and fit of the log-linear relations \eqref{eq:state_severity}.}
+\label{fig:F13}
+\end{figure}
+
+\subsubsection{Identifiability and limitations}
+
+Almost all the parameters which fit well have useful confidence intervals, but there are four things to remember. First, the points that form the curve where the curve changes shape are close together, so consider the curve as a whole \(f(t)\) and not at any one point. Secondly, the starting value \(E_0\) is not explicitly mentioned, and for 2024/25, the value of \(s_0\) is at its maximum, which is one. The severity of the season is thus dependent on both values, \(m_s\) and \(s_0\), which are somewhat counteracting each other. Third, the model shows that the total number of people getting infected each season—including those who get infected again—is 101 to 115 percent. This is not something that makes sense biologically for flu. It occurs because there are so many reported cases and because the level of immunity from infection is believed to have a short term, for only one year, (or \(\kappa = 1/365\ \text{day}^{-1}\)), which is less than what has been found to be for seasonal flu, 3 to 8 years \cite{truscott2012essential}. Fourth, the model predicts a value of \(R_0\) up to 4.44 and a peak \(R_0(t)\) exceeding the seasonal maximum values in temperate regions of 1.6 to 3 \cite{truscott2012essential} demonstrating the sharpness of the waves in the fake data. A test with a value of \(\kappa\) between 3 and 8 years of immunity is then considered in the analysis of uncertainty with the remaining parameter values kept constant.
+
+
+%%%%%%%%%%%%%%%%%
+
+
+
+\subsection{Generation of probabilistic forecasts}\label{sec:forecast_generation}
+
+Forecasts for 2026/27 are produced as sample paths, and run for 52 epidemiological weeks, starting Sunday 28 June 2026 and ending Saturday 26 June 2027. For the mechanistic members, there are 3 steps to create each path.
+\begin{enumerate}[label=(\roman*)]
+\item \emph{Parameter uncertainty}: A parameter vector is sampled from the asymptotic normal distribution of the fitted (transformed) parameters, $\mathcal{N}(\hat{x},\hat{s}^2 J^\top J)^{-1})$, and restricted to the parameter ranges.
+\item The quantities for the new season (transmission multiplier $m$ and Harmattan shift $h$ and initial susceptible fraction $s_0$ and backgrounds $B_{c},B_{h},B_{d}$) are not known but are taken from one of the fitted seasons, at random. The model is then integrated over 364 days and the weekly increments of the bookkeeping integrals \eqref{eq:bookkeeping} give the expected national cases, admissions and deaths.
+\item \emph{Model discrepancy and observation noise.} Each weekly mean is multiplied by $\exp(\epsilon_w-\tfrac12 s^2)$, with $s$ being the residual standard deviation of the fit of that series and $\epsilon_w$ a first-order autoregressive process with lag-one correlation 0.7; this reflects the structural misfit reported in Section~\ref{sec:data_fitting}. State counts are sampled from negative binomial distributions with size $k=12$ after spatial disaggregation, with the value of $k$ estimated from the inter-epidemic plateau (Figure~\ref{fig:F9}).
+\end{enumerate}
+The two mechanistic members are used, one with an infection-acquired immunity of one year (baseline fit) and four years (Table~\ref{tab:kappa_sens}), with 1,000 paths used for each. The benchmark member is an analogue-season model, which resamples one of the seasons of the observed data, then moves weeks 2--52 back 1 week, forward 1 week, or keeps them in place, rescales the above-background part by a factor of the log normal distribution with a standard deviation equal to the standard deviation between seasons of the log seasonal totals, and adds negative binomial noise. The week-1 artefact is reproduced in all members by multiplying week~1 by the ratio resampled from the observed seasons, specific to the state and series.
+
+\subsection{Spatial disaggregation}\label{sec:spatial_layer}
+
+Assume that the share of state $i$ in the above-background cases above the national background in season week $w$ is $\pi_{i,w}$ and is estimated as the ratio of the number of cases of state $i$ to the total number of cases in the season week $w$ (when the national epidemic is small, the overall seasonal share is used). These shares represent the main wave and the more powerful Harmattan wave, moving south–north in the North. The state share of the background is $b_i$ and the national epidemic component is $C_w$ such that the reported cases in state $i$ is expected to be $\pi_{i,w}C_w+b_i B_c$. The weights are assigned to each state, $i$th, according to the ratio $\pi_{i,w}r_i$ of the observed number of admissions (or deaths) per epidemic case in state $i$; these weights have the effect of healthcare accessibility (Section~\ref{sec:data_fitting}, equation~\eqref{eq:state_severity}). The weights are normalised to obtain the national mechanistic series. Each sample path is coherent across the state, regional, and national levels with regional and national forecasts being the sums of the state draws within each path.
+
+\subsection{Ensemble, time-ordered validation and scoring}\label{sec:validation_design}
+
+For the sake of time order, the full procedure was then repeated as if the forecast had been undertaken before the 2025/26 season, that is, mechanistic members were limited to 2023/24 and 2024/25 only forecasts, the benchmark was limited to these two seasons and all members forecasted all 52 weeks of 2025/26. The forecasts were scored against the observed 2025/26 data for cases, hospitalisations and deaths in Nigeria, the North, the South and all 37 states (120 series) using the mean absolute error (MAE) and root mean square error (RMSE) of the median, the weighted interval score (WIS) over 23 quantile levels \cite{bracher2021evaluating}, the continuous ranked probability score (CRPS) \cite{gneiting2007strictly}, the empirical coverage of the 50\% and 90\% prediction intervals, peak-week accuracy, and the relative errors of peak incidence and cumulative burden.
+
+The mechanism-based paths were combined with the benchmark paths according to the probabilities of $w=0,0.25,0.5,0.75,1$. The weight was determined to be the mean of the WIS relative to the benchmark between all 120 series. Both members produced too wide intervals (Section~\ref{sec:validation_results}), so a recalibration factor $c$ was chosen from $\{0.4,0.5,\dots,1\}$: For the scale $\log(1+y)$ every path is dragged toward the weekly median, $\log(1+\tilde{y})=\mathrm{med}+c\,[\log(1+y)-\mathrm{med}]$, and the interval is narrowed but the median is not displaced. These values, w=0.25 and c=0.6, were then used unaltered in the final 2026/27 forecasts, in which the mechanistic members are fitted to all three seasons and the benchmark resamples all three seasons. For each location, series, week, the final ensemble includes 2{,}000 sample paths, and the median, 50\% and 90\% prediction intervals and 23 quantiles are calculated for each location, series and week, as well as the probabilities of increased or decreased transmission and the probability of the peak occurring in a given week, alongside the peak week, peak incidence, cumulative cases, hospitalisations and deaths and the attack rate for each week.
+
+
+\section{Results}\label{sec:results}
+
+\subsection{Out-of-sample validation on the 2025/26 season}\label{sec:validation_results}
+
+Table~\ref{tab:validation} presents a summary of the time-ordered validation and Figure~\ref{fig:F37} shows the comparison of the national forecasts and the observed 2025/26 season. When used alone, the mechanistic model was able to correctly place the epidemic in time but underestimate the burden, as the two seasons fit implied a weaker epidemic in 2025/26, the reference season with the least burden, and the number of cumulative cases for the country was found to be 35\% lower than the observed number. The analogue benchmark was more general, and it did a better job of capturing the burden (-12\%). Both were bettered by the mixing of the two members, with $w=0.25$ reducing the mean relative WIS to 0.971 of the "benchmark", and after recalibration ($c=0.6$) to 0.857, i.e.\ a 14\% improvement over the benchmark averaged over all 120 series. The best ensemble achieved a WIS of 76{,}937, which is 23\% lower than the benchmark (100{,}302) and 42\% lower than the mechanistic model, which was 131{,}748.
+
+The final ensemble placed the peak in the observed week (week~15). The probability that the peak lies within one week of the observed peak is 0.93. For 96\% of the 120 location--series combinations the median forecast peak week was within one week of the peak. The peak height and the cumulative burden were underestimated: national cases were 22\% cumulative burden 21\% lower. Before recalibration the 50\% interval covered 80--90\% of the observations (Figure~\ref{fig:F38}); after recalibration the empirical coverage over all series was 54\% for the nominal 50\% interval and 86\% for the nominal 90\% interval close, to the nominal levels. The national case intervals remained slightly conservative covering 82\% and 96\% respectively.
+
+\begin{table}[!htbp]
+\caption{Time-ordered validation: forecasts of the full 2025/26 season made from models trained on 2023/24--2024/25. Weekly cases; values for the North/South and states are averages over locations. Coverage is the empirical coverage of the 50\% and 90\% prediction intervals.}
+\label{tab:validation}
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{llrrrrrr}
+\toprule
+Level & Model & MAE & RMSE & WIS & Cov.\ 50\% & Cov.\ 90\% & Cum.\ error\\
+\midrule
+National & Mechanistic & 210{,}028 & 517{,}658 & 131{,}748 & 0.90 & 1.00 & $-35\%$\\
+ & Benchmark & 139{,}245 & 270{,}725 & 100{,}302 & 0.90 & 0.98 & $-12\%$\\
+ & Final ensemble & 124{,}500 & 303{,}726 & 76{,}937 & 0.82 & 0.96 & $-21\%$\\
+North/South & Mechanistic & 106{,}602 & 290{,}499 & 67{,}657 & 0.90 & 0.99 & $-36\%$\\
+ & Benchmark & 81{,}467 & 190{,}274 & 55{,}456 & 0.89 & 0.99 & $-16\%$\\
+ & Final ensemble & 74{,}052 & 205{,}017 & 44{,}753 & 0.78 & 0.97 & $-24\%$\\
+States & Mechanistic & 6{,}408 & 18{,}420 & 4{,}238 & 0.78 & 0.98 & $-37\%$\\
+ & Benchmark & 5{,}055 & 13{,}776 & 3{,}579 & 0.80 & 0.99 & $-20\%$\\
+ & Final ensemble & 4{,}843 & 14{,}511 & 3{,}137 & 0.60 & 0.92 & $-27\%$\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{figure/F37_validation_national_2025_26}
+\caption{Out-of-sample validation: pre-season forecasts of the 2025/26 season by the mechanistic model, the analogue benchmark and the final recalibrated ensemble (median, 50\% and 90\% prediction intervals), trained on 2023/24--2024/25, against the observed data (points).}
+\label{fig:F37}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{figure/F38_validation_scores_calibration}
+\caption{Left: mean weighted interval score of weekly cases at national, regional and state level for each model in the 2025/26 validation. Right: empirical against nominal coverage of central prediction intervals over all locations and series; the dashed line is perfect calibration.}
+\label{fig:F38}
+\end{figure}
+
+
+\subsection{Forecasts for the 2026/27 season}\label{sec:forecast_results}
+
+Forecasts are available for 2026/27 in Table~\ref{tab:forecast_summary} and Figures~\ref{fig:F39}--\ref{fig:F45} and are also included in the forecast CSV files, along with the full (weekly) quantile forecasts for each location and each series, the seasonal targets and the probabilities. It is projected that there will be a second smaller Harmattan wave in season week~15 at a median of 1{,}368 cases per 100{,}000 per week, followed by an increase from mid-August, nationally (Figure~\ref{fig:F39}). The probability that the national peak is in the weeks 13-18 (late September to early November) is 0.96; the probability that it is after week 22 is 0.02. The season is forecast to produce 19.4 million reported cases (90\% prediction interval 13.1--28.8 million), 291{,}000 hospitalisations (196{,}000--420{,}000) and 26{,}700 deaths (18{,}800--38{,}100), an attack rate of 8.5\% (5.7--12.6\%) and 11.7 deaths per 100{,}000. These are in the middle of moderate (2023/24) and high severity (2024/25) seasons.
+
+There are differences in timing, peak and severity between the North and the South (Figure~\ref{fig:F40}). The South is forecast to peak in week~15 (4 October 2026) at 1{,}933 cases per 100{,}000 per week, and the North two weeks later, in week~17 (18 October 2026), at a lower peak of 1{,}277 per 100{,}000 but with a larger Harmattan wave. The attack rates are similar (8.6\% South, 8.1\% North), but the North is forecast to carry 17{,}000 of the 26{,}700 deaths (13.3 against 9.3 deaths per 100{,}000). The state heat map (Figure~\ref{fig:F41}) indicates the same south to north trend, with the tropical states having a median peak week of 15 days, while the median peak week for the most savanna states is 16 days, and the sahel states 17-18 days. The forecasted state attack rates range from 7.1\% in Zamfara, to 9.1\% in Ekiti (Figure~\ref{fig:F42}) while the mortality rates range from 5.6 to 14.4--15.1 death per 100,000 (Figure~\ref{fig:F43}) similarly reflecting the accessibility to healthcare. The probability of an increase in transmission is higher than 0.9 in the national view from season week~8 (mid-August) to week~15 (early October), lower than 0.1 between week~17 and week~21 (late October to late November) just before the Harmattan wave, and higher than 0.9 between week~24 and week~26 (December) after the Harmattan wave, as shown in Figure~\ref{fig:F45}. The South with both waves has a more early turn up and down than the North.
+
+\begin{table}[!htbp]
+\caption{Produce seasonal forecasts for targets for 2026/27: medians and prediction intervals at 90\% level in brackets. Peak incidence is weekly reported cases per 100{,}000 at the peak.}
+\label{tab:forecast_summary}
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lccc}
+\toprule
+Target & Nigeria & North & South\\
+\midrule
+Peak week (season week, start date) & 15 (4 Oct 2026) & 17 (18 Oct 2026) & 15 (4 Oct 2026)\\
+50\% interval of peak week & 15--16 & 16--17 & 14--15\\
+Peak incidence per 100{,}000 & 1{,}368 & 1{,}277 & 1{,}933\\
+Cumulative cases (millions) & 19.4 (13.1--28.8) & 10.4 (7.2--15.4) & 8.7 (4.9--12.9)\\
+Cumulative hospitalisations (thousands) & 291 (196--420) & 144 (99--204) & 143 (81--211)\\
+Cumulative deaths (thousands) & 26.7 (18.8--38.1) & 17.0 (12.0--24.1) & 9.5 (5.1--13.7)\\
+Attack rate (\%) & 8.5 (5.7--12.6) & 8.1 (5.7--12.1) & 8.6 (4.9--12.7)\\
+Deaths per 100{,}000 & 11.7 & 13.3 & 9.3\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{figure/F39_forecast_national_2026_27}
+\caption{The national forecast for 2026/27 (median, 50\% and 90\% prediction intervals) of weekly counts of cases, hospitalisations and deaths are plotted with the observed 2023/24–2025/26 seasons. The dashed line represents the beginning of the forecast (28 June 2026).}
+\label{fig:F39}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{figure/F40_forecast_north_south_2026_27}
+\caption{Forecast of cases, hospitalisations and deaths per 100,000 in Northern and Southern Nigeria, 2026/27 (median and 50th and 90th prediction intervals).}
+\label{fig:F40}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.85\textwidth]{figure/F41_forecast_state_heatmap_2026_27}
+\caption{Median weekly incidence per 100{,}000 people is forecasted for each of the 36 states and the FCT, in 2026/27, in order from tropical (top) to savanna to sahel (bottom).}
+\label{fig:F41}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{figure/F42_forecast_state_attack_rate_map}
+\caption{Schematic map of the forecasted median reported attack rate (\%), 2026/27. States are located at their average geographical points; the size of the marker mirrors the population of each state.}
+\label{fig:F42}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{figure/F43_forecast_state_mortality_map}
+\caption{Schematic map of the forecast median deaths per 100,000 by state in 2026/27 (approximate state centroids; marker size scaled to population).}
+\label{fig:F43}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{figure/F44_forecast_peak_week_2026_27}
+\caption{Left: probability distribution for the week when cases peak for Nigeria, the North and the South, respectively, as forecast. Right: Trend of median forecasted peak week of each state by climate region.}
+\label{fig:F44}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{figure/F45_forecast_prob_increase_2026_27}
+\caption{Weekly increase probability of cases from one week to the next, 2026/27 for Nigeria, the North and the South.}
+\label{fig:F45}
+\end{figure}
+
+\subsection{Numerical simulations of the influenza model} \label{s4}
+
+In this part, numerical simulations are performed using the parameter values obtained from the national surveillance data of the MAEPiMS Challenge 2026 (Section~\ref{sec:data_fitting}), and shown the SVEAITHQR model results. The 2d plots (figures~\ref{fig:sim_SEAI}--\ref{fig:sim_RVcases}) vary only one variable at a time. Each simulation is for the reference season 2023/24, beginning on 1st July, with the adjusted seasonal forcing $\beta(t)=\beta_0 f(t)$ and with the fixed initial conditions, so that each curve represents the two-wave seasonal dynamics of the model. The three dimensional plots (Figures~\ref{fig:sim_R0_surfaces} and~\ref{fig:sim_R0_volume}) show the dependence of the basic reproduction number $\mathcal{R}_0$ in \eqref{eq:flu_R0} on three parameters changing simultaneously. All other parameters are kept at their estimated/presumed values with a value of $\mathcal{R}_0 = 4.44$.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newpage
+% Figure: S, E, A, I
+\begin{figure}[!h]
+\centering
+\newcounter{subfigsimA}
+\stepcounter{figure}
+\renewcommand{\thesubfigsimA}{\thefigure(\alph{subfigsimA})}
+\begin{minipage}[b]{0.48\textwidth}
+\centering
+\refstepcounter{subfigsimA}
+\includegraphics[width=\textwidth]{figure/F25_S_vs_beta0}
+\\ (a)
+\label{fig:F25}
+\end{minipage}
+\hfill
+\begin{minipage}[b]{0.48\textwidth}
+\centering
+\refstepcounter{subfigsimA}
+\includegraphics[width=\textwidth]{figure/F26_E_vs_beta0}
+\\ (b)
+\label{fig:F26}
+\end{minipage}
+\vspace{0.5cm}
+\begin{minipage}[b]{0.48\textwidth}
+\centering
+\refstepcounter{subfigsimA}
+\includegraphics[width=\textwidth]{figure/F27_A_vs_theta}
+\\ (c)
+\label{fig:F27}
+\end{minipage}
+\hfill
+\begin{minipage}[b]{0.48\textwidth}
+\centering
+\refstepcounter{subfigsimA}
+\includegraphics[width=\textwidth]{figure/F28_I_vs_etaI}
+\\ (d)
+\label{fig:F28}
+\end{minipage}
+\addtocounter{figure}{-1}
+\caption{Effect of transmission parameters on the susceptible and infected compartments over the 2023/24 season. (a) Susceptible population $S$ for $\beta_0$ at 0.2--1.0 times its fitted value. (b) Exposed population $E$ for the same values of $\beta_0$. (c) Asymptomatic population $A$ for $\theta = 0.1$--$0.6$. (d) Symptomatic population $I$ for $\eta_I$ at 0.2--1.0 times its assumed value. Parameters: $\beta_0$, $\theta$, $\eta_I$.}
+\label{fig:sim_SEAI}
+\end{figure}
+
+\newpage
+% Figure: I (gamma_I), H, T, Q
+\begin{figure}[!h]
+\centering
+\newcounter{subfigsimB}
+\stepcounter{figure}
+\renewcommand{\thesubfigsimB}{\thefigure(\alph{subfigsimB})}
+\begin{minipage}[b]{0.48\textwidth}
+\centering
+\refstepcounter{subfigsimB}
+\includegraphics[width=\textwidth]{figure/F29_I_vs_gammaI}
+\\ (a)
+\label{fig:F29}
+\end{minipage}
+\hfill
+\begin{minipage}[b]{0.48\textwidth}
+\centering
+\refstepcounter{subfigsimB}
+\includegraphics[width=\textwidth]{figure/F30_H_vs_rho}
+\\ (b)
+\label{fig:F30}
+\end{minipage}
+\vspace{0.5cm}
+\begin{minipage}[b]{0.48\textwidth}
+\centering
+\refstepcounter{subfigsimB}
+\includegraphics[width=\textwidth]{figure/F31_T_vs_alpha}
+\\ (c)
+\label{fig:F31}
+\end{minipage}
+\hfill
+\begin{minipage}[b]{0.48\textwidth}
+\centering
+\refstepcounter{subfigsimB}
+\includegraphics[width=\textwidth]{figure/F32_Q_vs_phiI}
+\\ (d)
+\label{fig:F32}
+\end{minipage}
+\addtocounter{figure}{-1}
+\caption{Effect of recovery, hospitalisation and control parameters. (a) Symptomatic population $I$ for $\gamma_I$ at 1--2 times its assumed value. (b) Hospitalised population $H$ for $\rho$ at 0.2--1.0 times its fitted value. (c) Population on antiviral therapy $T$ for $\alpha$ at 1--8 times its assumed value. (d) Isolated population $Q$ for $\phi_I$ at 1--8 times its assumed value. Parameters: $\gamma_I$, $\rho$, $\alpha$, $\phi_I$.}
+\label{fig:sim_IHTQ}
+\end{figure}
+
+\newpage
+% Figure: R, V, weekly cases
+\begin{figure}[!h]
+\centering
+\newcounter{subfigsimC}
+\stepcounter{figure}
+\renewcommand{\thesubfigsimC}{\thefigure(\alph{subfigsimC})}
+\begin{minipage}[b]{0.48\textwidth}
+\centering
+\refstepcounter{subfigsimC}
+\includegraphics[width=\textwidth]{figure/F33_R_vs_kappa}
+\\ (a)
+\label{fig:F33}
+\end{minipage}
+\hfill
+\begin{minipage}[b]{0.48\textwidth}
+\centering
+\refstepcounter{subfigsimC}
+\includegraphics[width=\textwidth]{figure/F34_V_vs_omega}
+\\ (b)
+\label{fig:F34}
+\end{minipage}
+\vspace{0.5cm}
+\begin{minipage}[b]{0.48\textwidth}
+\centering
+\refstepcounter{subfigsimC}
+\includegraphics[width=\textwidth]{figure/F35_cases_vs_phiI}
+\\ (c)
+\label{fig:F35}
+\end{minipage}
+\hfill
+\begin{minipage}[b]{0.48\textwidth}
+\centering
+\refstepcounter{subfigsimC}
+\includegraphics[width=\textwidth]{figure/F36_cases_vs_beta0}
+\\ (d)
+\label{fig:F36}
+\end{minipage}
+\addtocounter{figure}{-1}
+\caption{Effect of immunity, vaccination and control on the recovered and vaccinated compartments and on weekly reported cases. (a) Recovered population $R$ for immunity durations $1/\kappa$ from six months to eight years. (b) Vaccinated population $V$ for vaccination rates $\omega = 10^{-5}$--$5\times10^{-3}$ day$^{-1}$. (c) Weekly reported cases for $\phi_I$ at 1--8 times its assumed value. (d) Weekly reported cases for $\beta_0$ at 0.6--1.0 times its fitted value. Parameters: $\kappa$, $\omega$, $\phi_I$, $\beta_0$.}
+\label{fig:sim_RVcases}
+\end{figure}
+
+
+\newpage
+% Figure: 3-D layered surfaces of R0
+\begin{figure}[!h]
+\centering
+\newcounter{subfigsimD}
+\stepcounter{figure}
+\renewcommand{\thesubfigsimD}{\thefigure(\alph{subfigsimD})}
+\begin{minipage}[b]{0.48\textwidth}
+\centering
+\refstepcounter{subfigsimD}
+\includegraphics[width=\textwidth]{figure/F19_R0_beta0_etaI_gammaI}
+\\ (a)
+\label{fig:F19}
+\end{minipage}
+\hfill
+\begin{minipage}[b]{0.48\textwidth}
+\centering
+\refstepcounter{subfigsimD}
+\includegraphics[width=\textwidth]{figure/F20_R0_phiI_alpha_beta0}
+\\ (b)
+\label{fig:F20}
+\end{minipage}
+\vspace{0.5cm}
+\begin{minipage}[b]{0.48\textwidth}
+\centering
+\refstepcounter{subfigsimD}
+\includegraphics[width=\textwidth]{figure/F21_R0_theta_gammaA_etaI}
+\\ (c)
+\label{fig:F21}
+\end{minipage}
+\hfill
+\begin{minipage}[b]{0.48\textwidth}
+\centering
+\refstepcounter{subfigsimD}
+\includegraphics[width=\textwidth]{figure/F22_R0_epsV_omega_xi}
+\\ (d)
+\label{fig:F22}
+\end{minipage}
+\addtocounter{figure}{-1}
+\caption{Three-dimensional surfaces of $\mathcal{R}_0$ against two parameters, with one surface for each of three values of a third parameter; the grey plane marks $\mathcal{R}_0 = 1$. (a) $\beta_0$ and $\eta_I$ for $\gamma_I = 0.15, 0.20, 0.30$. (b) $\phi_I$ and $\alpha$ for $\beta_0 = 0.4, 0.8, 1.125$. (c) $\theta$ and $\gamma_A$ for $\eta_I = 0.5, 1.0, 1.5$. (d) $\varepsilon_V$ and $\omega$ for $\xi = 1/365, 1/180, 1/90$. Parameters: $\beta_0$, $\eta_I$, $\gamma_I$, $\phi_I$, $\alpha$, $\theta$, $\gamma_A$, $\varepsilon_V$, $\omega$, $\xi$.}
+\label{fig:sim_R0_surfaces}
+\end{figure}
+
+\newpage
+% Figure: 3-D volume plots of R0
+\begin{figure}[!h]
+\centering
+\newcounter{subfigsimE}
+\stepcounter{figure}
+\renewcommand{\thesubfigsimE}{\thefigure(\alph{subfigsimE})}
+\begin{minipage}[b]{0.48\textwidth}
+\centering
+\refstepcounter{subfigsimE}
+\includegraphics[width=\textwidth]{figure/F23_R0_volume_beta0_phiI_alpha}
+\\ (a)
+\label{fig:F23}
+\end{minipage}
+\hfill
+\begin{minipage}[b]{0.48\textwidth}
+\centering
+\refstepcounter{subfigsimE}
+\includegraphics[width=\textwidth]{figure/F24_R0_volume_beta0_etaI_gammaI}
+\\ (b)
+\label{fig:F24}
+\end{minipage}
+\addtocounter{figure}{-1}
+\caption{Three-dimensional parameter volumes coloured by $\mathcal{R}_0$ (blue: $\mathcal{R}_0<1$, red: $\mathcal{R}_0>1$; black points: $\mathcal{R}_0 \approx 1$). (a) $(\beta_0, \phi_I, \alpha)$. (b) $(\beta_0, \eta_I, \gamma_I)$. Parameters: $\beta_0$, $\phi_I$, $\alpha$, $\eta_I$, $\gamma_I$.}
+\label{fig:sim_R0_volume}
+\end{figure}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\newpage
+
+Figure~\ref{fig:F25} shows that the vulnerable group is related to the occurrence of an epidemic and the level of population depletion due to $\beta_0$. The threshold $\mathcal{R}_0 = 1$ is attained at $\beta_0 \approx 0.25$ day$^{-1}$, roughly 23\% of the estimated value. At $0.2\beta_0$ ($\mathcal{R}_0 = 0.89$) an epidemic does not transpire and $S$ increases due to diminishing immunity. When $\beta_0 > 0.4\beta_0^{\text{fit}}$, the susceptible population drops to the minimum of 2.7 - 11.4 million, but then partially recovers because of the decline in immunity. A substantial timing influence is apparent in figure~\ref{fig:F26}. A decrease in the transmission causes the exposed peak to shift from day 94 (early October) to day 190 (early January) and for the peak to become larger (at $4.7\times10^{7}$ at $0.4\beta_0^{\text{fit}}$ than at $1.4\times10^{7}$ at the fitted value). This happens because the epidemics are delayed when the forcing $f(t)$ is at its peak during the Harmattan, and the season is more robust.
+
+
+As the proportion of asymptomatic infections, $\theta$ increases from 0.1 to 0.6, the asymptomatic peak also increases six-fold (from $2.6\times10^{6}$ to $1.6\times10^{7}$) and occurs at the same time (day 98) in Figure~\ref{fig:F27}. The value of $\mathcal{R}_0$ remains almost unchanged (4.43--4.45), which is similar to the minimum value of PRCC, $\theta$. However, when asymptomatic infections are not reported, the number of cases reported drops from 25.9 million to 11.6 million. Symptomatic case-based surveillance is very underpowered, especially if $\theta$ is high. As shown in Figure~\ref{fig:F28}, a decrease in the relative infectiousness of symptomatic individuals $\eta_I$ leads to a reduction in the value of $\mathcal{R}_0$ (from $4.44$ to $2.11$ at $\eta_I=0.2$) and to a delay in the onset of an epidemic. Reported cases go down from 20.2 million to 17.2 million.
+
+
+When $\gamma_I$ is raised, accelerated recovery of symptomatic individuals (Figure~\ref{fig:F29}) reduces and delays the symptomatic peak, from $1.7\times10^{7}$ on day 98 to $9.9\times10^{6}$ on day 137 and decreases $\mathcal{R}_0$ to 3.12. The hospitalized population (Figure~\ref{fig:F30}) is directly proportional to the value of $\rho$ and shows peaks around day 101, ranging from $5.6\times10^{3}$ to $2.8\times10^{4}$. The timing and the number of cases are unaffected, since admission does not affect the transmission. Therefore, the severity metrics are the source of hospital demand and the epidemic curve is affected by the transmission. Increasing the antiviral uptake $\alpha$ by 8, as shown in Figure~\ref{fig:F31}, results in a treated peak that is boosted from $1.3\times10^{6}$ to $6.5\times10^{6}$, and decreases the infectivity $\mathcal{R}_0$ only to 3.92. But when the isolated peak is multiplied by 8 (Figure~\ref{fig:F32}), the peak becomes $1.8\times 10^{7}$, the time to the peak increases to day 152 and $\mathcal{R}_0$ decreases to 2.91. In the model, isolation is consequently the more effective of the two control strategies.
+
+
+The duration of immunity is an important factor in the burden (Figure~\ref{fig:F33}), as is vaccination and recorded incidents. After 8 years of immunity, the recovered group finishes with $2.1\times10^{8}$ and the total number of cases reported is 14.6 million. This results in $R$ being reduced to $9.0\times10^{7}$, and a total of 26.1 million cases. This establishes that there is substantial sensitivity in $\kappa$ as found in Section~\ref{sec:sensitivity}. As shown in Figure~\ref{fig:F34}, as the vaccination rate $\omega$ is increased, the population of vaccinated individuals grows and $\mathcal{R}_0$ decreases (to 3.19 by increasing the vaccination rate to 5$\times 10^{-3}$). The effect on the seasonal burden is negligible since each season starts with $V$ at the disease-free state, so this value mostly reflects the initial condition. The key result of the policy is shown in Figures~\ref{fig:F35} and~\ref{fig:F36}. Enhanced isolation and decreased transmission lead to a reduction in cumulative reported cases (from 20.2 to 17.4 million for $\phi_I = 0.4$, and to 17.2 million for $0.6\beta_0$), though they postpone the main wave to December–January, where it combines with the Harmattan wave. The peak may rise to: 4.96 million weekly cases in week 22 for $\phi_I = 0.4$, and 8.74 million in week 24 for $0.6\beta_0$, compared to 4.20 million in week 14 at baseline.
+
+
+Figure~\ref{fig:F19} shows that $\mathcal{R}_0$ increases very rapidly and almost multiplicatively with changes in both $\beta_0$ and $\eta_I$ as they change within the range shown, from 0.17 to 9.23. At the estimated rate of transmission, both isolation and antiviral treatment can help reduce the value of $\mathcal{R}_0$ but neither can bring it below 1 (see Figure~\ref{fig:F20}). At $\phi_I = 0.8$ solely, $\mathcal{R}_0 = 2.45$, and at $\alpha = 0.8$ solely, $\mathcal{R}_0 = 3.31$. When the two combinations are made, the combination yields 2.65, which is higher than isolation alone because the combination moves symptomatic persons from isolation into a more contagious group (iso: $\eta_Q = 0.1$ vs. combination: $\eta_T = 0.5$). The two combinations yield only $\mathcal{R}_0 = 0.94 < 1$ when the transmission is reduced as well ($\beta_0 = 0.4$). The figure~\ref{fig:F21} above indicates that the change in $\eta_I$ greatly affects the surface, whereas the change in $\theta$ has very little effect. As shown in figure~\ref{fig:F22} extensive coverage, high efficacy and long-lasting protection will be the only ways to reduce $\mathcal{R}_0$ below one through vaccination. At $\omega = 0.02$ day$^{-1}$ and $\varepsilon_V = 0.95$, $\mathcal{R}_0 = 0.74$ for one-year protection, whereas it is 1.15 for six-month protection.
+
+
+Volume graphs of the three combinations where $\mathcal{R}_0 < 1$ (blue) and $\mathcal{R}_0 > 1$ (red) are shown in Figures~\ref{fig:F23} and~\ref{fig:F24}. In Figure~\ref{fig:F23} the area of low $\beta_0$ is kept small and as $\phi_I$ and $\alpha$ increase, the area of low $\beta_0$ grows marginally, so reducing contact remains critical. As shown in figure~\ref{fig:F24} the threshold surface in the $(\beta_0, \eta_I, \gamma_I)$ is curved: the transmission rate is increasing with decreasing $\eta_I$ and increasing $\gamma_I$. Actions that reduce or minimise the strength of infectiousness of an ill person allow for control at higher rates of contact.
+
+
+These simulations are deterministic and are national population simulations. The seasonal forcing fitted to the dynamics affects the dynamics and so the timing results in Figures~\ref{fig:F26}, \ref{fig:F35} and~\ref{fig:F36} depends on the peak of the forcing in early January. A measure of the uncertainty of these results is given in Section~\ref{sec:sensitivity}.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Policy Implications}\label{sec:policy}
+
+All the forecasts, the sensitivity analysis and the simulations have direct consequence for influenza preparedness in Nigeria. The forecast window for preparation is very short in 2026/27, transmission is forecast to start to rise in mid-August, the national peak is forecast as a week from 4 October 2026 (0.96 probability it occurs between late September and early November) and the North is forecast to peak about two weeks after the South. Therefore, October should be the most critical month for the acquisition of beds with a national median of approximately 44{,}000 bed admissions in the peak week, followed again by a smaller wave of admissions in January 2027. Given that the North's attack rate is comparable, the highest mortality gains are predicted with improving access to care in low access states in the North. In light of these results, we recommend to the Nigerian policy holders, public health officials and health facilities the following:
+
+\begin{enumerate}[label=(\roman*)]
+\item Programmes started for the September – October wave should be sustained until December – February. The simulations show that if measures are stopped early, the epidemic could be pushed to a later time with respect to the peak of seasonal transmission, and the peak could be increased.
+\item Of the control measures evaluated, the most effective was the prompt isolation of symptomatic individuals and minimizing contact. In addition to reduced transmission, it also reduces $\mathcal{R}_0$ to below one (Figure~\ref{fig:F20}). The use of antiviral programmes must be integrated with isolation recommendations, and not as an alternative.
+\item Distribute readiness by regions: The main surge will come to the tropical southern states 2-3 weeks earlier than the sahel states. This means that the southern surveillance signals can be used as an early warning system for the north where the Harmattan wave is also stronger.
+
+\item The Sahel zone had high case fatality rates, while regions with poor healthcare access had high case fatality rates. Improved access to hospital care and early treatment in these States is the best way to reduce influenza deaths.
+\item There is uncertainty over reporting, with about one in eight symptomatic infections documented, and the extent of reporting makes a significant contribution to this uncertainty. Improving sentinel and laboratory monitoring will increase situational awareness and increase the accuracy of forecasts.
+\item If vaccination can be made to be very effective (significant efficacy), can be done with great coverage (significant number of vaccinations) and the protection is long enough (long enough time in season), then vaccination alone can reduce $\mathcal{R}_0$ and make the process extinct. A vaccination program should be planned to include both waves.
+
+\item Mid-September 2026 in the South and early October 2026 in the North: stock anti-viral, oxygen and hospital capacity according to the weekly probability of increasing transmission (Figure~\ref{fig:F45}) and scale up/down according to the probability; update forecasts every week as new surveillance data are available.
+\end{enumerate}
+
+\section{Discussion}\label{sec:discussion}
+
+The study was a hybrid between an original mechanistic model and a probabilistic modeling framework developed for the multi-wave, irregular seasonality of influenza in Nigeria. The observed dynamics can be explained on the mechanistic level: a seasonal transmission rate that peaks during Harmattan and provides a main wave in September–November, susceptible depletion which ends the main wave and a second wave, where the transmission increases again in December. It also connects reported cases to hospitalisation and mortality explicitly through clinical pathways, allowing a single model to make forecasts in all three series without a problem. The validation revealed, however, that the mechanistic model is not the best forecaster because fitted to two seasons it correctly predicted the epidemic but underestimated the burden of the next season, since the burden of a new season depends on season-specific quantities (transmission intensity, Harmattan strength and population susceptibility) that vary between seasons and cannot be predicted from two observations. This between-season variability is directly represented in the analogue by the analogue, but without any mechanism. The whole ensemble is a mixture of timing and structure of the mechanistic model and of the burden variability of the benchmark, and it turned out to perform better than both members on each of the four levels after recalibration. A similar result has been observed in operational influenza forecasting, where ensembles of complementary models generally succeed in outperforming their constituent models \cite{Mathis2024FluSight,Tsang2024adaptive,Ray2025Flusion}.
+
+The spatial analysis distinguishes two causes of heterogeneity. Timing is determined by climate: the main wave is first reported from the tropical South, while two to three weeks later it is reported from the sahel North; the Harmattan wave has almost the same time of appearance, but is far more intense in the North. Severity is determined by healthcare accessibility: the state with better accessibility has more hospitalisations per case and much fewer deaths. Geography redistributes the burden of the attacks, but does not alter their overall impact, within a season. These patterns are incorporated into the forecasts, which is why the North is forecast to have a similar attack rate, but much higher mortality than the South.
+
+The results of the study are well-established in direction, but weak in magnitude, with respect to the policy. The fitted $\mathcal{R}_0$ is sensitive to the assumed duration of immunity (4.44 for a 1-year period of immunity and 8.04 for a 4-year period of immunity) and the implied total infection attack rate is implausibly high under the 1-year assumption; these values must therefore be taken with some caution. This assumption has less influence on the forecasts since both immunity scenarios are represented as ensemble members and the timing and form of fitted epidemics are identical under both immunity scenarios. The simulations revealed that decreasing the transmission reduces the overall burden, but it could push the main wave to the Harmattan season, with a higher peak which is dependent on the forcing used to fit the simulations and an argument in favour of maintaining, not dropping, interventions during the dry season.
+
+% stopped here
+
+\subsection{Limitations and directions for future research}\label{sec:limitations}
+
+There are several limitations to this research. Initially, it depends solely on the synthetic surveillance data provided for the challenge, thus the computed values illustrate the simulated epidemic and need validation with actual Nigerian surveillance data prior to application for policy. Further, the model is deterministic and national. State diversity is introduced only with the severity regressions on health care access, there is no interaction nor link between states. Thirdly, it is impossible to establish from the data the duration of the infection-acquired immunity. The one-year baseline assumption implies an unrealistically high overall infection attack rate, whereas the four-year baseline assumption is closer to a higher overall attack rate by about a factor of two, which is closer to the value of $\mathcal{R}_0$. Similarly, it is not possible to distinguish the death rate in the hospital and in each individual spline-knot. Fourthly, the stability evaluation is in the context of the autonomous model with constant transmission, while the local stability of the endemic equilibrium has not yet been proven. Finally, each season begins with a disease-free vaccinated group, which leads to an under-estimate of the effect of the vaccine on the burden of the season.
+
+There are additional limitations of the forecasting framework. The ensemble weight and interval recalibration factor were chosen using one season of validation, hence the validation results of the final ensemble are favourable and the recalibration may not be exactly applicable to 2026/27. The best estimates were also below by approximately 20\% of the peak and cumulative burden for 2025/26, indicating that the medians for 2026/27 may be conservative. The spatial layer is top-down, meaning it assumes the state shares and severity ratios of 2023/24 through 2025/26 will remain unchanged and it does not expect for the order of states hit to change. Approximate centroids of states are used instead of administrative boundaries for the schematic maps. Lastly, once forecast products are generated, they are generated once, before the season, and should be updated weekly as more observations are received, and the framework can be updated with the latest observations.
+
+There is therefore a need for the future to do:
+\begin{itemize}
+\item expand the model to include a metapopulation of the 36 states and the FCT, including state migration and climate-related factors; and
+\item compute the threshold for the periodic system, based on the spectral radius of the next-generation operator, Floquet theory
+\item determine the stability of the endemic equilibrium;
+\item develop a stochastic model to account for extinction and reporting variability during early season; and
+\item measure parameter uncertainty in a Bayesian framework that does account for serological information on immunity;
+\item incorporate age distribution, strain substitutions, and immunization efforts; and
+\item reformulate the model by replacing the integer order derivatives with fractional order derivatives such as Atangana–Baleanu–Caputo derivatives, which take into consideration memory effects in behavior and immunity.
+\end{itemize}
+
+\section{Uncertainty Analysis}\label{sec:uncertainty}
+
+Uncertainty is present as follows: in the forecasts, because of the year-to-year variability in the data; in the fitted parameters, due to the limited information in the three seasons of data; in the fixed assumptions, due in particular to the length of immunity. Each is quantified in this section.
+
+\subsection{Forecast uncertainty and calibration}\label{sec:forecast_uncertainty}
+
+The forecast distributions are the product of the four sources of uncertainty used in the forecast generation (Section~\ref{sec:forecast_generation}): the parameter uncertainty due to the fitted covariance matrix, the season-to-season variability due to the variables of the analogue seasons and the quantities of the seasons, the structural model discrepancy due to the autoregressive multiplicative error model, and the reporting noise due to the negative binomial observation model. The predicted range for national cumulative cases (90\%, 13.1--28.8 million) is a factor of 2.2 wide, similar to the range of the observed seasons (17.0--31.4 million). The gaps between the waves are wider at the summits when small changes in timing result in large changes in weekly counts, and narrower between the waves (inter-epidemic period) in Figure~\ref{fig:F39}. The uncertainty in time is significantly less than the uncertainty in magnitude: the national 50\% range covers just weeks 15 to 16 of the peak week.
+
+The time-ordered validation (Figure~\ref{fig:F38}) was used to check the calibration of the intervals. After applying the recalibration factor $c=0.6$ both members were under-confident, covering 80-90\% of observations with their 50\% intervals, and 54-86\% of all 120 series with their nominal 50\% intervals. Coverage varies across the levels, with national and regional case intervals being somewhat wide, while state death intervals were too narrow (49\% and 78\%), due to the small numbers and the high relative noise of state mortality data. The recalibration was estimated for one season and is therefore uncertain; the 90\% intervals should therefore be considered as approximate.
+
+\subsection{Parameter uncertainty and global sensitivity analysis}\label{sec:sensitivity}
+
+The model contains parameters. A few of them were calibrated to line up with the data from the surveillance system. Their uncertainty is shown in Table~\ref{tab:parameters}. Values used for the remaining parameters were determined from studies or by making reasonable assumptions. The reproduction number can be influenced by any mistake in these parameter values. Also impact the forecasted burden. We carried out an uncertainty and sensitivity analysis to understand the contribution from each of the parameters to the results. We used Latin Hypercube Sampling (LHS) \cite{mckay1979comparison} along with Partial Rank Correlation Coefficients (PRCC) \cite{blower1994sensitivity,marino2008methodology}. All parameters were assigned a distribution of ± 25\% from their baseline. When the fitted parameters, the fitted value was considered as the baseline. In the case of the fixed ones, it was the value. The upper bounds, for the proportions $\theta$ $\varepsilon_V$ and $p_c$ were kept below one. We created a LHS design with $N = 1000$ parameter sets with the help of \texttt{scipy.stats.qmc.LatinHypercube} \cite{virtanen2020scipy}.
+
+For each set of parameters, three response functions were tested:
+\begin{enumerate}[label=(\roman*)]
+\item the basic reproduction number $\mathcal{R}_0$ in \eqref{eq:flu_R0} with $\eta_A = 1$ where the 25 parameters are shown in Table~\ref{tab:PRCC_R0}; and
+\item the total reported epidemic cases of the reference season 2023/24;
+\item highest reported numbers of epidemic cases per week for the same period of time.
+\end{enumerate}
+
+
+Responses (ii) and (iii) were created by running the model with the fitted seasonal forcing $f(t)$ and the fitted starting values. For these two responses the waning rate of infection-acquired immunity $\kappa$ and the reporting fraction $p_c$ were also varied which produced a total of 27 parameters.
+
+For each response the parameters and the response were rank‑transformed. The PRCC of a parameter is the correlation, between the residuals of the parameter ranks and the residuals of the response ranks after a regression that uses the ranks of all other parameters. The significance of the PRCC was tested with the statistic $t = r\sqrt{(N-2-k)/(1-r^2)}$ which has $N-2-k$ degrees of freedom; here $k$ represents the number of parameters \cite{marino2008methodology}. If the PRCC is positive, then increasing the value of the parameter will increase the response, and if the PRCC is negative, then increasing the value of the parameter will decrease the response.
+
+\subsubsection{Sensitivity of the basic reproduction number}
+
+The PRCC values of $\mathcal{R}_0$ are given in Table~\ref{tab:PRCC_R0}. As shown in Figures~\ref{fig:F14} and~\ref{fig:F15}. Out of the 25 parameters ten are significant at the 5\% level. The mean transmission rate $\beta_0$ has the effect with a PRCC of $+0.975$ and $p < 0.001$. This implies that the increase of $\mathcal{R}_0$ is very strong when $\beta_0$ increases. The second parameter in consideration is the infectiousness of the symptomatic people in the community $\eta_I$ with PRCC of $+0.939$ and $p < 0.001$. The increase in $\mathcal{R}_0$ by both $\beta_0$ and $\eta_I$ makes them important targets of interventions for decreasing transmission. Reducing contact can help to lower these values by decreasing the number of masks worn and/or practicing respiratory hygiene measures.
+
+The recovery rates of the infected but not symptomatic population $\gamma_I$ and of the infected but symptomatic population $\gamma_A$ have significant negative influences on $\mathcal{R}_0$. The value for $\gamma_I$ is $-0.905$ and for $\gamma_A$ it is $-0.773$. These rates help to decrease the length of time people are infectious and therefore reduce transmission. The isolation rate, denoted as $\phi_I$ and corresponding to a PRCC value of $-0.426$ has the greatest impact on the isolation rate of individuals. Isolation is a successful way to prevent the spread of illness. The recovery rate on therapy, $\gamma_T$ at $-0.179$; the antiviral uptake rate for symptomatic people, $\alpha$ at $-0.126$ and the recovery rate when not on therapy, $\gamma_Q$ at $-0.080$ are also important parameters. All these parameters lower $\mathcal{R}_0$. Better isolation and access to antivirals can decrease transmission.
+
+The ratio of the infectivity of isolated and treated person $\eta_Q$ and $\eta_T$ has a significant positive impact. The PRCC for $\eta_Q$ is $+0.077$ and, for it is $+0.071$. This is because isolation and treatment are effective only when it decreases the risk of virus transmission. The benefits are small if there are individuals who are still infectious after isolation or treatment. This is because the effectiveness of isolation and treatment is dependent on their ability to inhibit transmission.
+
+People who do not have symptoms will have a small positive effect theta has a PRCC of plus 0.061 and $p$ equals 0.055. In this model a bigger theta moves infections, into the group of people who do not show symptoms this group stays infectious for a time but gets almost no isolation or treatment and these two things almost balance each other out.
+
+Other parameters have |PRCC|>0.06 and are not important. They are the hospitalisation rate rho the disease-induced death rates $\delta_I$ and $\delta_H$ the natural death rate mu and the vaccination parameters omega, xi and $\epsilon_V$. The vaccination parameters aren't important as the assumed vaccination rate is low enough that the size of the vaccinated group is very small at the disease-free equilibrium. The impact of vaccine effectiveness, on $R_0$ is therefore not observed at levels but would be more pronounced in the presence of higher coverage.
+
+Figure~\ref{fig:F17} shows the relationship between $\mathcal{R}_0$ and the three most important parameters, and confirms the strong monotonic relationships between their PRCCs. For the LHS sample, the median of $\mathcal{R}_0$ is 4.46, and the 95\% uncertainty interval for $\mathcal{R}_0$ is (2.98, 6.43) (Figure~\ref{fig:F18}). Every one of the 1,000 samples shows $\mathcal{R}_0 > 1$. So, the result of influenza continuing to spread without further control remains robust despite all parameters being within $\pm 25 \%$.
+
+
+\begin{longtable}{clcc}
+\caption{PRCC values of the model parameters with respect to $\mathcal{R}_0$, sorted by absolute value ($N = 1{,}000$ LHS samples).}\label{tab:PRCC_R0}\\
+\hline
+Rank & Parameter & PRCC & $p$-value\\ \hline
+\endfirsthead
+\hline
+Rank & Parameter & PRCC & $p$-value\\ \hline
+\endhead
+1 & $\beta_0$ & +0.9748 & $<0.001$ \\
+2 & $\eta_I$ & +0.9395 & $<0.001$ \\
+3 & $\gamma_I$ & -0.9048 & $<0.001$ \\
+4 & $\gamma_A$ & -0.7731 & $<0.001$ \\
+5 & $\phi_I$ & -0.4264 & $<0.001$ \\
+6 & $\gamma_T$ & -0.1793 & $<0.001$ \\
+7 & $\alpha$ & -0.1265 & $<0.001$ \\
+8 & $\gamma_Q$ & -0.0801 & 0.012 \\
+9 & $\eta_Q$ & +0.0774 & 0.016 \\
+10 & $\eta_T$ & +0.0705 & 0.028 \\
+11 & $\theta$ & +0.0613 & 0.055 \\
+12 & $\alpha_A$ & -0.0526 & 0.100 \\
+13 & $\eta_H$ & +0.0358 & 0.264 \\
+14 & $\rho$ & -0.0351 & 0.274 \\
+15 & $\phi_A$ & -0.0332 & 0.300 \\
+16 & $\phi_H$ & +0.0252 & 0.432 \\
+17 & $\omega$ & +0.0191 & 0.550 \\
+18 & $\sigma$ & -0.0099 & 0.758 \\
+19 & $\mu$ & +0.0097 & 0.761 \\
+20 & $\gamma_H$ & -0.0042 & 0.895 \\
+21 & $\delta_H$ & -0.0026 & 0.936 \\
+22 & $\alpha_H$ & +0.0021 & 0.947 \\
+23 & $\varepsilon_V$ & +0.0016 & 0.961 \\
+24 & $\delta_I$ & +0.0011 & 0.973 \\
+25 & $\xi$ & +0.0009 & 0.978 \\
+\hline
+\end{longtable}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{figure/F14_prcc_R0_all}
+\caption{PRCC of all 25 parameters of $\mathcal{R}_0$. Red bars increase and blue bars decrease $\mathcal{R}_0$; an asterisk marks $p<0.05$.}
+\label{fig:F14}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.7\textwidth]{figure/F15_prcc_R0_top10}
+\caption{PRCC of the ten most influential parameters with respect to $\mathcal{R}_0$.}
+\label{fig:F15}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{figure/F17_R0_scatter_top3}
+\caption{$\mathcal{R}_0$ against its three most influential parameters ($\beta_0$, $\eta_I$, $\gamma_I$) over the 1{,}000 LHS samples.}
+\label{fig:F17}
+\end{figure}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.6\textwidth]{figure/F18_R0_uncertainty}
+\caption{Uncertainty distribution of $\mathcal{R}_0$ over the LHS sample. The red line marks the fitted baseline $\mathcal{R}_0 = 4.44$ and the dashed line the threshold $\mathcal{R}_0 = 1$.}
+\label{fig:F18}
+\end{figure}
+
+\subsubsection{Sensitivity of the seasonal burden}
+
+The results of the PRCC are shown in Table~\ref{tab:PRCC_burden} and Figure~\ref{fig:F16} for the cumulative and peak reported cases during the reference season. The reporting fraction $p_c$ is having a significant influence on both responses (PRCC $= +0.984$ and $+0.797$): The more cases are reported, the more cases actually are reported. This highlights the importance of a complete surveillance for the reported burden.
+
+
+The negative effect of asymptomatic fraction $\theta$ on the reported cumulative cases (PRCC $= -0.908$), which is among the epidemiological factors, means that no asymptomatic infections are reported. The rate at which immunity declines $\kappa$ has a significant positive impact (PRCC $= +0.815$): a quicker decrease in immunity boosts the susceptible population during the season and heightens reinfection rates. The transmission parameters $\beta_0$ (PRCC $= +0.802$) and $\eta_I$ (PRCC $= +0.644$) elevate the burden. It is decreased by the rates of recovery $\gamma_I$ and $\gamma_A$ as well as the isolation rate $\phi_I$. The peak is less responsive to all the parameters except for $p_c$; the decrease in susceptibles limits the amplitude of the wave. Within the LHS sample, the cumulative reported epidemic cases for 2023/24 show a median of $1.98 \times 10^{7}$ (95\% interval $1.43$--$2.65 \times 10^{7}$), while the peak weekly reported cases have a median of $4.20 \times 10^{6}$ (95\% interval $2.89$--$6.33 \times 10^{6}$).
+
+
+\begin{longtable}{clcccc}
+\caption{PRCC values with respect to cumulative and peak weekly reported epidemic cases of the 2023/24 season, sorted by absolute PRCC for cumulative cases ($N = 1{,}000$ LHS samples).}\label{tab:PRCC_burden}\\
+\hline
+ & & \multicolumn{2}{c}{Cumulative cases} & \multicolumn{2}{c}{Peak weekly cases}\\
+Rank & Parameter & PRCC & $p$-value & PRCC & $p$-value\\ \hline
+\endfirsthead
+\hline
+Rank & Parameter & PRCC & $p$-value & PRCC & $p$-value\\ \hline
+\endhead
+1 & $p_c$ & +0.9835 & $<0.001$ & +0.7969 & $<0.001$ \\
+2 & $\theta$ & -0.9076 & $<0.001$ & -0.4545 & $<0.001$ \\
+3 & $\kappa$ & +0.8154 & $<0.001$ & +0.1932 & $<0.001$ \\
+4 & $\beta_0$ & +0.8017 & $<0.001$ & +0.3343 & $<0.001$ \\
+5 & $\eta_I$ & +0.6444 & $<0.001$ & +0.1851 & $<0.001$ \\
+6 & $\gamma_I$ & -0.4885 & $<0.001$ & -0.1423 & $<0.001$ \\
+7 & $\gamma_A$ & -0.3232 & $<0.001$ & -0.0291 & 0.364 \\
+8 & $\sigma$ & +0.1781 & $<0.001$ & +0.0548 & 0.088 \\
+9 & $\phi_I$ & -0.1421 & $<0.001$ & -0.0205 & 0.522 \\
+10 & $\gamma_T$ & -0.1010 & 0.002 & +0.0057 & 0.859 \\
+11 & $\delta_H$ & -0.0602 & 0.061 & +0.0169 & 0.598 \\
+12 & $\varepsilon_V$ & -0.0466 & 0.146 & +0.0221 & 0.492 \\
+13 & $\delta_I$ & +0.0383 & 0.232 & -0.0225 & 0.482 \\
+14 & $\omega$ & -0.0365 & 0.256 & -0.0744 & 0.020 \\
+15 & $\xi$ & -0.0345 & 0.282 & +0.0040 & 0.902 \\
+16 & $\mu$ & +0.0305 & 0.342 & -0.0112 & 0.726 \\
+17 & $\gamma_Q$ & -0.0271 & 0.398 & -0.0319 & 0.320 \\
+18 & $\eta_Q$ & -0.0263 & 0.412 & +0.0234 & 0.466 \\
+19 & $\eta_T$ & +0.0229 & 0.476 & +0.0192 & 0.549 \\
+20 & $\rho$ & -0.0225 & 0.482 & -0.0304 & 0.344 \\
+21 & $\alpha_H$ & +0.0215 & 0.503 & -0.0165 & 0.607 \\
+22 & $\phi_H$ & +0.0164 & 0.609 & +0.0351 & 0.274 \\
+23 & $\alpha_A$ & -0.0160 & 0.617 & -0.0045 & 0.888 \\
+24 & $\gamma_H$ & -0.0127 & 0.692 & +0.0186 & 0.563 \\
+25 & $\eta_H$ & -0.0099 & 0.757 & -0.0146 & 0.648 \\
+26 & $\alpha$ & -0.0066 & 0.837 & -0.0164 & 0.609 \\
+27 & $\phi_A$ & +0.0023 & 0.944 & +0.0286 & 0.373 \\
+\hline
+\end{longtable}
+
+\begin{figure}[!htbp]
+\centering
+\includegraphics[width=0.75\textwidth]{figure/F16_prcc_cumulative_cases}
+\caption{PRCC of the 27 parameters with respect to cumulative reported epidemic cases in the 2023/24 season; an asterisk marks $p<0.05$.}
+\label{fig:F16}
+\end{figure}
+
+\subsubsection{Sensitivity to the assumed duration of immunity}
+
+Since the burden is highly sensitive to $\kappa$ a structural sensitivity study was carried out. In section~\ref{sec:data_fitting} it was found that the baseline immunity from influenza is lower than the 3–8 years that was estimated for seasonal influenza \cite{truscott2012essential}. Thus, the whole fitting procedure was repeated with a four year immunity (1/4 × 365 = -day$^{-1}$), while the other parameters were kept the same. Two fitting methods are compared in terms of their evaluation in Table~\ref{tab:kappa_sens}.
+Overall data fit is improved with the 4 year model, with the weighted misfit going from 43.2 to 37.6. The $R^2$ increases for the 2023/24 and 2024/25 series and remains virtually the same for 2025/26. It also results in a lower overall infection attack rate of 76--103\% per season. The reporting ratios are similar for both fits $p_c = 0.161$ vs. $0.125$. However, the number of susceptibles replenishing much slower makes the number of transmissions required to produce the strong waves larger, and $\beta_0$ is larger, thus is $\mathcal{R}_0$ ($8.04$ instead of $4.44$). In both cases ($a_1 > 0$), backward bifurcation cannot be obtained.
+
+The results suggest that the time and shape of the fitted epidemics are still consistent with the immunity hypothesis, but the absolute size of $\mathcal{R}_0$ and the actual attack rate are not. The synthetic data by itself cannot determine the length of immunity. As a result, the reported values of $\mathcal{R}_0$ should be considered in the context of $\kappa$ and both models are considered within the forecasting ensemble.
+
+\begin{table}[!htbp]
+\caption{Comparison of fits under one-year (baseline) and four-year immunity. $R^2$ values are for cases / hospitalisations / deaths.}\label{tab:kappa_sens}
+\centering
+\begin{tabular}{lcc}
+\hline
+Quantity & $1/\kappa = 1$ year (baseline) & $1/\kappa = 4$ years\\ \hline
+Weighted misfit (cost) & 43.2 & 37.6\\
+$\beta_0$ (day$^{-1}$) & 1.125 (0.865, 1.463) & 2.039 (1.209, 3.440)\\
+$p_c$ & 0.125 (0.098, 0.158) & 0.161 (0.106, 0.245)\\
+$\rho$ (day$^{-1}$) & $4.52\times10^{-4}$ & $5.87\times10^{-4}$\\
+$\delta_I$ (day$^{-1}$) & $2.15\times10^{-5}$ & $2.77\times10^{-5}$\\
+$\mathcal{R}_0$ (2023/24) & 4.44 & 8.04\\
+Total infection attack rate (\%) & 101 / 115 / 113 & 76 / 103 / 83\\
+$R^2$, 2023/24 & 0.54 / 0.88 / 0.83 & 0.58 / 0.90 / 0.86\\
+$R^2$, 2024/25 & 0.84 / 0.88 / 0.86 & 0.84 / 0.93 / 0.89\\
+$R^2$, 2025/26 & 0.85 / 0.97 / 0.98 & 0.85 / 0.97 / 0.98\\
+Endemic quadratic $a_1$ & 0.335 & 2.425\\
+\hline
+\end{tabular}
+\end{table}
+
+\subsubsection{Implications for control}
+
+The sensitivity results when combined form three groups of parameters.
+\begin{enumerate}[label=(\roman*)]
+\item The parameters that have the greatest positive impact on $\mathcal{R}_0$ and the burden are the \emph{transmission parameters} ($\beta_0$ and $\eta_I$). The actions that will have the greatest impact will be those that will reduce community interaction and the infectivity of infected individuals during the September-October surge and the Harmattan season.
+\item There is a significant negative effect from infectious-period and control parameters, ($\gamma_I, \gamma_A, \phi_I, \alpha, \gamma_T$). Among the interventions in the model, the most effective are quicker case identification for people who are experiencing symptoms and greater access to antivirals.
+\item The parameters of surveillance and immunity ($p_c, \kappa, \theta$) have little or no influence on the value of $\mathcal{R}_0$ but do have a significant influence on the reported burden. Increasing the number of cases reported and the number of serologies collected that provide data on immunity would improve forecasting much more than adjusting the severity parameters $\rho, \delta_I,$ and $\delta_H$; these values are not sensitive to either $\mathcal{R}_0$ or the number of cases.
+
+\end{enumerate}
+
+%The parameters for %Vaccination are uninfluential, because vaccination coverage is currently very low.
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Conclusions} \label{s5}
+
+In this study, a new model of seasonal influenza in Nigeria, namely SVEAITHQR model, was developed with nine state variables representing susceptible, vaccinated, exposed, asymptomatic, symptomatic, hospitalized, treated, isolated and recovered people, with a seasonality transmission rate. This was done using the next generation matrix method and it was shown that the disease-free equilibrium is locally asymptotically stable when the basic reproduction number is less than one. It is globally asymptotically stable at $\bar{\mathcal{R}}_0 \le 1$ which further reduces to $\mathcal{R}_0 \le 1$ when $\varepsilon_V = 0$. If $\mathcal{R}_0>1$ then the endemic equilibrium is unique. For the occurrence of a backward bifurcation, it is necessary that $\varepsilon_V > 0$ and it is excluded at the estimated values of the parameters ($a_1>0$). All the analytical results were verified numerically.
+
+
+A negative binomial observation model was used to apply the model to the national weekly cases, hospitalisations and deaths in three seasons, with a periodic spline constraint. It mimics the above mentioned two wave pattern: the primary wave from September to November and the Harmattan related wave from December to January where the principal wave peak is recorded within 1 week of the observed peak of the wave each season. About 12.5\% of people with symptoms get a record of the infection ($p_c = 0.125$). Access to healthcare plays a significant role in increasing hospital admission rates and decreasing mortality rates in the community between states while the climate zone affects the timing of epidemics, the first wave moving from the tropical south to the Sahel north in 2-3 weeks. Sensitivity analysis reveals that the most important parameters for the influence on the value of $\mathcal{R}_0$ are respectively the transmission rate, the contagiousness and recovery of symptomatic people and the time of isolation. The reporting fraction, the asymptomatic fraction and the length of immunity are the most important factors that determine the burden reported. The simulations suggest that intervention reduces the total burden of disease, but may also shift the epidemic into the Harmattan period, with a potential increase in the peak.
+
+The validated and recalibrated ensemble forecasts the national peak to be in the week of 4 October 2026 with 13.1--28.8 million reported cases, 291{,}000 hospitalisations and 26{,}700 deaths, of which almost two-thirds will be in the North. The ensemble correctly recognized the national peak week for the time-ordered validation on 2025/26, and also minimized the weighted interval score of the national cases by 23\% compared to the benchmark. The framework therefore offers an interpretable, reproducible and uncertainty-aware influenza forecasting system for Nigeria whose structure could be changed as new surveillance data become available.
+
+\subsection*{Data and code availability}
+
+{\sloppy
+All analyses use only the synthetic dataset provided for the MAEPiMS Challenge 2026. The complete source code, covering data processing, model fitting, validation, forecasting and all figures, is available at
+\url{https://github.com/maepimschallenge/MAEPiMS-2.0-2026-/tree/main/python_codes_folders}.
+The commands listed in the repository's \texttt{README.md} file reproduce every table and figure, and the submitted forecast files are \texttt{forecast\_2026\_27\_weekly\_quantiles.csv}, \texttt{forecast\_2026\_27\_seasonal\_targets.csv} and \texttt{forecast\_2026\_27\_probabilities.csv}.
+\par}
+
+
+% ---- add to the bibliography ----
+
+
+
+
+
+
+\begin{thebibliography}{99}
+
+% Ordered by first citation in the manuscript.
+% Removed duplicate entries for vandenDriessche2002 and dobson2015oseltamivir (duplicate keys cause LaTeX errors).
+% Yuan2021tropics and yuan2021tropics are the same paper under two keys; both are kept so existing \cite commands still work.
+
+\bibitem{WHO2025influenza}
+World Health Organization.
+\newblock Influenza (seasonal).
+\newblock World Health Organization, 2025.
+\newblock Available from: \url{https://www.who.int/news-room/fact-sheets/detail/influenza-(seasonal)}.
+
+\bibitem{Yuan2021tropics}
+H.~Yuan, S.~C. Kramer, E.~H.~Y. Lau, B.~J. Cowling, and W.~Yang.
+\newblock Modeling influenza seasonality in the tropics and subtropics.
+\newblock \emph{PLoS Computational Biology}, 17(6):e1009050, 2021.
+\newblock doi:10.1371/journal.pcbi.1009050.
+
+
+\bibitem{Mathis2024FluSight}
+S.~M. Mathis, A.~E. Webber, T.~M. León, E.~L. Murray, M.~Sun, L.~A. White,
+L.~C. Brooks, A.~Green, A.~J. Hu, R.~Rosenfeld, D.~Shemetov, R.~J. Tibshirani,
+D.~J. McDonald, S.~Kandula, S.~Pei, R.~Yaari, T.~K. Yamana, J.~Shaman,
+and collaborators.
+\newblock Evaluation of FluSight influenza forecasting in the 2021--22 and 2022--23 seasons with a new target laboratory-confirmed influenza hospitalizations.
+\newblock \emph{Nature Communications}, 15(1):6289, 2024.
+\newblock doi:10.1038/s41467-024-50601-9.
+
+\bibitem{Tsang2024adaptive}
+T.~K. Tsang, Q.~Du, B.~J. Cowling, and C.~Viboud.
+\newblock An adaptive weight ensemble approach to forecast influenza activity in an irregular seasonality context.
+\newblock \emph{Nature Communications}, 15(1):8625, 2024.
+\newblock doi:10.1038/s41467-024-52504-1.
+
+\bibitem{Ray2025Flusion}
+E.~L. Ray, Y.~Wang, R.~D. Wolfinger, and N.~G. Reich.
+\newblock Flusion: Integrating multiple data sources for accurate influenza predictions.
+\newblock \emph{Epidemics}, 50:100810, 2025.
+\newblock doi:10.1016/j.epidem.2024.100810.
+
+
+
+%%%%%%%%%%%%% assumptions
+
+\bibitem{anderson1991infectious}
+R.~M. Anderson and R.~M. May.
+\newblock \emph{Infectious Diseases of Humans: Dynamics and Control}.
+\newblock Oxford University Press, Oxford, 1991.
+\newblock doi:10.1093/oso/9780198545996.001.0001.
+
+\bibitem{bansal2007homogeneous}
+S.~Bansal, B.~T. Grenfell, and L.~A. Meyers.
+\newblock When individual behaviour matters: Homogeneous and network models in epidemiology.
+\newblock \emph{Journal of the Royal Society Interface}, 4(16):879--891, 2007.
+\newblock doi:10.1098/rsif.2007.1100.
+
+\bibitem{hill2019seasonal}
+E.~M. Hill, S.~Petrou, S.~de Lusignan, I.~Yonova, and M.~J. Keeling.
+\newblock Seasonal influenza: Modelling approaches to capture immunity propagation.
+\newblock \emph{PLoS Computational Biology}, 15(10):e1007096, 2019.
+\newblock doi:10.1371/journal.pcbi.1007096.
+
+\bibitem{halloran2009vaccine}
+M.~E. Halloran, I.~M. Longini, Jr., and C.~J. Struchiner.
+\newblock \emph{Design and Analysis of Vaccine Studies}.
+\newblock Springer, New York, 2009.
+\newblock doi:10.1007/978-0-387-68636-3.
+
+\bibitem{patrozou2009asymptomatic}
+E.~Patrozou and L.~A. Mermel.
+\newblock Does influenza transmission occur from asymptomatic infection or prior to symptom onset?
+\newblock \emph{Public Health Reports}, 124(2):193--196, 2009.
+\newblock doi:10.1177/003335490912400205.
+
+\bibitem{cowling2010household}
+B.~J. Cowling, K.~H. Chan, V.~J. Fang, L.~L.~H. Lau, H.~C. So,
+R.~O.~P. Fung, E.~S.~K. Ma, A.~S.~K. Kwong, C.-W. Chan, W.~W.~S. Tsui,
+H.-Y. Ngai, D.~W.~S. Chu, P.~W.~Y. Lee, M.-C. Chiu, G.~M. Leung,
+and J.~S.~M. Peiris.
+\newblock Comparative epidemiology of pandemic and seasonal influenza A in households.
+\newblock \emph{New England Journal of Medicine}, 362(23):2175--2184, 2010.
+\newblock doi:10.1056/NEJMoa0911530.
+
+\bibitem{tsang2023asymptomatic}
+T.~K. Tsang, C.~Wang, V.~J. Fang, R.~A.~P.~M. Perera, H.~C. So,
+D.~K.~M. Ip, G.~M. Leung, J.~S.~M. Peiris, S.~Cauchemez,
+and B.~J. Cowling.
+\newblock Reconstructing household transmission dynamics to estimate the infectiousness of asymptomatic influenza virus infections.
+\newblock \emph{Proceedings of the National Academy of Sciences},
+120(33):e2304750120, 2023.
+\newblock doi:10.1073/pnas.2304750120.
+
+\bibitem{hayden2018baloxavir}
+F.~G. Hayden, N.~Sugaya, N.~Hirotsu, N.~Lee, M.~D. de Jong, A.~C. Hurt,
+T.~Ishida, H.~Sekino, K.~Yamada, S.~Portsmouth, K.~Kawaguchi,
+T.~Shishido, M.~Arai, K.~Tsuchiya, T.~Uehara, and A.~Watanabe.
+\newblock Baloxavir marboxil for uncomplicated influenza in adults and adolescents.
+\newblock \emph{New England Journal of Medicine}, 379(10):913--923, 2018.
+\newblock doi:10.1056/NEJMoa1716197.
+
+\bibitem{dobson2015oseltamivir}
+J.~Dobson, R.~J. Whitley, S.~Pocock, and A.~S. Monto.
+\newblock Oseltamivir treatment for influenza in adults: A meta-analysis of randomised controlled trials.
+\newblock \emph{The Lancet}, 385(9979):1729--1737, 2015.
+\newblock doi:10.1016/S0140-6736(14)62449-1.
+
+\bibitem{jefferson2014oseltamivir}
+T.~Jefferson, M.~Jones, P.~Doshi, E.~A. Spencer, I.~Onakpoya,
+and C.~J. Heneghan.
+\newblock Oseltamivir for influenza in adults and children: Systematic review of clinical study reports and summary of regulatory comments.
+\newblock \emph{BMJ}, 348:g2545, 2014.
+\newblock doi:10.1136/bmj.g2545.
+
+\bibitem{woolthuis2017immunity}
+R.~G. Woolthuis, J.~Wallinga, and M.~van Boven.
+\newblock Variation in loss of immunity shapes influenza epidemics and the impact of vaccination.
+\newblock \emph{BMC Infectious Diseases}, 17:632, 2017.
+\newblock doi:10.1186/s12879-017-2716-y.
+
+\bibitem{keeling2008modeling}
+M.~J. Keeling and P.~Rohani.
+\newblock \emph{Modeling Infectious Diseases in Humans and Animals}.
+\newblock Princeton University Press, Princeton, 2008.
+\newblock doi:10.2307/j.ctvcm4gk0.
+
+\bibitem{shaman2009humidity}
+J.~Shaman and M.~Kohn.
+\newblock Absolute humidity modulates influenza survival, transmission, and seasonality.
+\newblock \emph{Proceedings of the National Academy of Sciences},
+106(9):3243--3248, 2009.
+\newblock doi:10.1073/pnas.0806852106.
+
+\bibitem{tamerius2011seasonality}
+J.~Tamerius, M.~I. Nelson, S.~Z. Zhou, C.~Viboud, M.~A. Miller,
+and W.~J. Alonso.
+\newblock Global influenza seasonality: Reconciling patterns across temperate and tropical regions.
+\newblock \emph{Environmental Health Perspectives}, 119(4):439--445, 2011.
+\newblock doi:10.1289/ehp.1002383.
+
+\bibitem{yuan2021tropics}
+H.~Yuan, S.~C. Kramer, E.~H.~Y. Lau, B.~J. Cowling, and W.~Yang.
+\newblock Modeling influenza seasonality in the tropics and subtropics.
+\newblock \emph{PLoS Computational Biology}, 17(6):e1009050, 2021.
+\newblock doi:10.1371/journal.pcbi.1009050.
+
+
+\bibitem{Akano2024Nigeria}
+A.~Akano, A.~H. Sadauki, A.~M. Adelabu, A.~Malgwi, M.~Fagbola, O.~Ogunbode,
+A.~Usman, C.~Ameh, M.~S. Balogun, E.~Ilori, S.~Badaru, A.~Adetunji,
+A.~Adebayo, N.~Mba, A.~Iniobong, E.~Eze, I.~Akerele, B.~Grema,
+O.~O. Sodipo, E.~Enemuo, C.~Ochu, C.~Ihekweazu, and I.~Adetifa.
+\newblock Epidemiology of influenza in Nigeria: A secondary analysis of the sentinel surveillance data in Nigeria from 2010--2020.
+\newblock \emph{Journal of Infection and Public Health}, 17(3):495--502, 2024.
+\newblock doi:10.1016/j.jiph.2023.12.021.
+
+
+
+\bibitem{thompson2003mortality}
+W.~W. Thompson, D.~K. Shay, E.~Weintraub, L.~Brammer, N.~Cox,
+L.~J. Anderson, and K.~Fukuda.
+\newblock Mortality associated with influenza and respiratory syncytial virus in the United States.
+\newblock \emph{JAMA}, 289(2):179--186, 2003.
+\newblock doi:10.1001/jama.289.2.179.
+
+%%% positivity
+
+\bibitem{hartman2002ode}
+P.~Hartman.
+\newblock \emph{Ordinary Differential Equations}.
+\newblock Classics in Applied Mathematics, Vol.~38.
+\newblock Society for Industrial and Applied Mathematics (SIAM), Philadelphia, PA, 2002.
+\newblock Corrected reprint of the second edition originally published by Birkh\"auser in 1982.
+\newblock \url{https://doi.org/10.1137/1.9780898719222}.
+
+%%%% dfe and basic reproduction number
+
+\bibitem{vandenDriessche2002}
+P.~van~den Driessche and J.~Watmough.
+\newblock Reproduction numbers and sub-threshold endemic equilibria for compartmental models of disease transmission.
+\newblock \emph{Mathematical Biosciences}, 180(1--2):29--48, 2002.
+\newblock doi:10.1016/S0025-5564(02)00108-6.
+
+\bibitem{LaSalle1976}
+J.~P. LaSalle.
+\newblock \emph{The Stability of Dynamical Systems}.
+\newblock Regional Conference Series in Applied Mathematics, SIAM, Philadelphia, 1976.
+
+%%%% data fitting
+
+\bibitem{harris2020array}
+C.~R. Harris, K.~J. Millman, S.~J. van~der Walt, R.~Gommers, P.~Virtanen, D.~Cournapeau, et~al.
+\newblock Array programming with {NumPy}.
+\newblock \emph{Nature}, 585(7825):357--362, 2020.
+\newblock doi:10.1038/s41586-020-2649-2.
+
+\bibitem{mckinney2010data}
+W.~McKinney.
+\newblock Data structures for statistical computing in {P}ython.
+\newblock In \emph{Proceedings of the 9th Python in Science Conference}, pages 56--61, 2010.
+\newblock doi:10.25080/Majora-92bf1922-00a.
+
+\bibitem{virtanen2020scipy}
+P.~Virtanen, R.~Gommers, T.~E. Oliphant, M.~Haberland, T.~Reddy, D.~Cournapeau, et~al.
+\newblock {SciPy} 1.0: fundamental algorithms for scientific computing in {P}ython.
+\newblock \emph{Nature Methods}, 17(3):261--272, 2020.
+\newblock doi:10.1038/s41592-019-0686-2.
+
+\bibitem{hunter2007matplotlib}
+J.~D. Hunter.
+\newblock Matplotlib: a {2D} graphics environment.
+\newblock \emph{Computing in Science \& Engineering}, 9(3):90--95, 2007.
+\newblock doi:10.1109/MCSE.2007.55.
+
+\bibitem{eilers1996flexible}
+P.~H.~C. Eilers and B.~D. Marx.
+\newblock Flexible smoothing with {B}-splines and penalties.
+\newblock \emph{Statistical Science}, 11(2):89--121, 1996.
+\newblock doi:10.1214/ss/1038425655.
+
+\bibitem{branch1999subspace}
+M.~A. Branch, T.~F. Coleman, and Y.~Li.
+\newblock A subspace, interior, and conjugate gradient method for large-scale bound-constrained minimization problems.
+\newblock \emph{SIAM Journal on Scientific Computing}, 21(1):1--23, 1999.
+\newblock doi:10.1137/S1064827595289108.
+
+%%%% parameter values
+
+\bibitem{worldbank2025lifeexp}
+World Bank.
+\newblock Life expectancy at birth, total (years) -- Nigeria (indicator SP.DYN.LE00.IN).
+\newblock \emph{World Development Indicators}, The World Bank, Washington, DC, 2025.
+\newblock \url{https://data.worldbank.org/indicator/SP.DYN.LE00.IN?locations=NG}. Accessed 30 September 2026.
+
+\bibitem{lessler2009incubation}
+J.~Lessler, N.~G. Reich, R.~Brookmeyer, T.~M. Perl, K.~E. Nelson, and D.~A.~T. Cummings.
+\newblock Incubation periods of acute respiratory viral infections: a systematic review.
+\newblock \emph{The Lancet Infectious Diseases}, 9(5):291--300, 2009.
+\newblock doi:10.1016/S1473-3099(09)70069-6.
+
+\bibitem{carrat2008timelines}
+F.~Carrat, E.~Vergu, N.~M. Ferguson, M.~Lemaitre, S.~Cauchemez, S.~Leach, and A.-J. Valleron.
+\newblock Time lines of infection and disease in human influenza: a review of volunteer challenge studies.
+\newblock \emph{American Journal of Epidemiology}, 167(7):775--785, 2008.
+\newblock doi:10.1093/aje/kwm375.
+
+\bibitem{leung2015asymptomatic}
+N.~H.~L. Leung, C.~Xu, D.~K.~M. Ip, and B.~J. Cowling.
+\newblock The fraction of influenza virus infections that are asymptomatic: a systematic review and meta-analysis.
+\newblock \emph{Epidemiology}, 26(6):862--872, 2015.
+\newblock doi:10.1097/EDE.0000000000000340.
+
+\bibitem{furuya2016heterogeneous}
+L.~Furuya-Kanamori, M.~Cox, G.~J. Milinovich, R.~J. Magalhaes, I.~M. Mackay, and L.~Yakob.
+\newblock Heterogeneous and dynamic prevalence of asymptomatic influenza virus infections.
+\newblock \emph{Emerging Infectious Diseases}, 22(6):1052--1056, 2016.
+\newblock doi:10.3201/eid2206.151080.
+
+\bibitem{osterholm2012efficacy}
+M.~T. Osterholm, N.~S. Kelley, A.~Sommer, and E.~A. Belongia.
+\newblock Efficacy and effectiveness of influenza vaccines: a systematic review and meta-analysis.
+\newblock \emph{The Lancet Infectious Diseases}, 12(1):36--44, 2012.
+\newblock doi:10.1016/S1473-3099(11)70295-X.
+
+\bibitem{ferdinands2017intraseason}
+J.~M. Ferdinands, A.~M. Fry, S.~Reynolds, J.~Petrie, B.~Flannery, M.~L. Jackson, and E.~A. Belongia.
+\newblock Intraseason waning of influenza vaccine protection: evidence from the US Influenza Vaccine Effectiveness Network, 2011--12 through 2014--15.
+\newblock \emph{Clinical Infectious Diseases}, 64(5):544--550, 2017.
+
+\bibitem{truscott2012essential}
+J.~Truscott, C.~Fraser, S.~Cauchemez, A.~Meeyai, W.~Hinsley, C.~A. Donnelly, A.~Ghani, and N.~Ferguson.
+\newblock Essential epidemiological mechanisms underpinning the transmission dynamics of seasonal influenza.
+\newblock \emph{Journal of the Royal Society Interface}, 9(67):304--312, 2012.
+\newblock doi:10.1098/rsif.2011.0309.
+
+%%%% sensitivity analysis
+
+\bibitem{mckay1979comparison}
+M.~D. McKay, R.~J. Beckman, and W.~J. Conover.
+\newblock A comparison of three methods for selecting values of input variables in the analysis of output from a computer code.
+\newblock \emph{Technometrics}, 21(2):239--245, 1979.
+\newblock doi:10.2307/1268522.
+
+\bibitem{blower1994sensitivity}
+S.~M. Blower and H.~Dowlatabadi.
+\newblock Sensitivity and uncertainty analysis of complex models of disease transmission: an {HIV} model, as an example.
+\newblock \emph{International Statistical Review}, 62(2):229--243, 1994.
+\newblock doi:10.2307/1403510.
+
+\bibitem{marino2008methodology}
+S.~Marino, I.~B. Hogue, C.~J. Ray, and D.~E. Kirschner.
+\newblock A methodology for performing global uncertainty and sensitivity analysis in systems biology.
+\newblock \emph{Journal of Theoretical Biology}, 254(1):178--196, 2008.
+\newblock doi:10.1016/j.jtbi.2008.04.011.
+
+%%%% NOT CITED anywhere in the manuscript (kept at the end; delete if not needed, or cite it in the text)
+
+\bibitem{cdc2020antiviral}
+Centers for Disease Control and Prevention.
+\newblock Influenza antiviral medications: Summary for clinicians.
+\newblock Centers for Disease Control and Prevention, 2020.
+\newblock Available from: \url{https://www.cdc.gov/flu/hcp/antivirals/summary-clinicians.html}.
+
+
+\bibitem{bracher2021evaluating}
+J.~Bracher, E.~L. Ray, T.~Gneiting, and N.~G. Reich.
+\newblock Evaluating epidemic forecasts in an interval format.
+\newblock \emph{PLoS Computational Biology}, 17(2):e1008618, 2021.
+\newblock doi:10.1371/journal.pcbi.1008618.
+
+\bibitem{gneiting2007strictly}
+T.~Gneiting and A.~E. Raftery.
+\newblock Strictly proper scoring rules, prediction, and estimation.
+\newblock \emph{Journal of the American Statistical Association}, 102(477):359--378, 2007.
+\newblock doi:10.1198/016214506000001437.
+
+\bibitem{gneiting2007calibration}
+T.~Gneiting, F.~Balabdaoui, and A.~E. Raftery.
+\newblock Probabilistic forecasts, calibration and sharpness.
+\newblock \emph{Journal of the Royal Statistical Society: Series B}, 69(2):243--268, 2007.
+\newblock doi:10.1111/j.1467-9868.2007.00587.x.
+
+
+\bibitem{Rama2026PINN}
+M.~Rama, G.~Santin, G.~Cencetti, M.~Tizzoni, and B.~Lepri.
+\newblock Forecasting seasonal influenza epidemics with physics-informed neural networks.
+\newblock \emph{Epidemics}, 55:100919, 2026.
+\newblock doi:10.1016/j.epidem.2026.100919.
+
+\end{thebibliography}
+
+\end{document}

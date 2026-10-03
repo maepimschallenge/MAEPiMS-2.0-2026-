@@ -1,0 +1,32 @@
+quantity,value
+"R0 (closed form, eta_A = 1)",4.4381503653815795
+R0 (spectral radius of F V^-1),4.43815036538158
+R0bar = R0 m0/m1 (GAS threshold),4.442897584427136
+endemic quadratic a2,73.01798434434124
+endemic quadratic a1,0.3353138824434182
+endemic quadratic a0,-0.009654202787854917
+discriminant a1^2-4a2a0,2.9321571118420224
+backward bifurcation possible (a1<0 and disc>0 for R0<1),False
+"hospitalised fraction of symptomatic, rho/K_I",0.0016693333194772793
+"infection fatality (sympt.), (delta_I + rho delta_H/K_H)/K_I",0.00016289256816484418
+season R0 = m_s R0 2023/2024,4.4381503653815795
+max_t R0(t) 2023/2024,19.468414230765926
+min_t R0(t) 2023/2024,1.4251308775233558
+day of max beta(t) after season start 2023/2024,183.8
+true infection attack rate 2023/2024 (%),100.95341632644868
+reported attack rate 2023/2024 (%) model,9.545011369700628
+R_eff at season start 2023/2024,1.5196426755019523
+season R0 = m_s R0 2024/2025,2.615878755060713
+max_t R0(t) 2024/2025,10.037722110364218
+min_t R0(t) 2024/2025,1.0024478619236132
+day of max beta(t) after season start 2024/2025,183.70000000000002
+true infection attack rate 2024/2025 (%),115.23110831333491
+reported attack rate 2024/2025 (%) model,10.227500489660962
+R_eff at season start 2024/2025,1.4854404812590645
+season R0 = m_s R0 2025/2026,3.3735527898619777
+max_t R0(t) 2025/2026,14.807287842479033
+min_t R0(t) 2025/2026,1.0822671192285378
+day of max beta(t) after season start 2025/2026,183.8
+true infection attack rate 2025/2026 (%),113.04274748506472
+reported attack rate 2025/2026 (%) model,10.416323541152305
+R_eff at season start 2025/2026,1.471880810920964

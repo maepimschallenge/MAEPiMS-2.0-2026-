@@ -1,0 +1,57 @@
+key,symbol,description,value,lo95,hi95,unit,source
+mu,\mu,Natural death rate (life expectancy 55 yr),4.9813200498132005e-05,,,day$^{-1}$,Assumed
+sigma,\sigma,Progression rate from E (latent period 2 d),0.5,,,day$^{-1}$,Assumed
+theta,\theta,Asymptomatic fraction,0.3,,,--,Assumed
+gamma_A,\gamma_A,"Recovery rate, asymptomatic",0.25,,,day$^{-1}$,Assumed
+gamma_I,\gamma_I,"Recovery rate, symptomatic (community)",0.2,,,day$^{-1}$,Assumed
+gamma_H,\gamma_H,"Recovery rate, hospitalised",0.14285714285714285,,,day$^{-1}$,Assumed
+gamma_T,\gamma_T,"Recovery rate, on antiviral therapy",0.25,,,day$^{-1}$,Assumed
+gamma_Q,\gamma_Q,"Recovery rate, isolated",0.2,,,day$^{-1}$,Assumed
+alpha_A,\alpha_A,"Antiviral uptake rate, asymptomatic",0.001,,,day$^{-1}$,Assumed
+alpha,\alpha,"Antiviral uptake rate, symptomatic",0.02,,,day$^{-1}$,Assumed
+alpha_H,\alpha_H,"Antiviral uptake rate, hospitalised",0.1,,,day$^{-1}$,Assumed
+phi_A,\phi_A,"Isolation rate, asymptomatic",0.001,,,day$^{-1}$,Assumed
+phi_I,\phi_I,"Isolation rate, symptomatic",0.05,,,day$^{-1}$,Assumed
+phi_H,\phi_H,"Isolation rate, hospitalised",0.05,,,day$^{-1}$,Assumed
+eta_I,\eta_I,Relative infectiousness of $I$ (reference $A$ = 1),1.0,,,--,Assumed
+eta_H,\eta_H,Relative infectiousness of $H$,0.2,,,--,Assumed
+eta_T,\eta_T,Relative infectiousness of $T$,0.5,,,--,Assumed
+eta_Q,\eta_Q,Relative infectiousness of $Q$,0.1,,,--,Assumed
+eps_V,\varepsilon_V,Vaccine efficacy,0.6,,,--,Assumed
+omega,\omega,Vaccination rate,1e-05,,,day$^{-1}$,Assumed
+xi,\xi,Waning rate of vaccine protection,0.005555555555555556,,,day$^{-1}$,Assumed
+kappa,\kappa,Waning rate of infection-acquired immunity,0.0027397260273972603,,,day$^{-1}$,Assumed
+delta_H,\delta_H,"Disease-induced death rate, hospitalised",0.012784576634612684,,,day$^{-1}$,Assumed
+Lambda,\Lambda,Recruitment rate ($\mu N_0$),11432.225902864258,,,persons day$^{-1}$,Assumed
+beta_0,\beta_0,Mean transmission rate,1.1246413148625953,0.8645486227369599,1.4629808594127967,day$^{-1}$,Estimated
+g_1,g_{1},Log-forcing spline knot 1 (day 30 after 1 July; $g_0=0$),0.20326882247599623,-0.5763886741064407,0.9829263190584331,--,Estimated
+g_2,g_{2},Log-forcing spline knot 2 (day 61 after 1 July; $g_0=0$),0.2380355156479507,-0.877094818836447,1.3531658501323485,--,Estimated
+g_3,g_{3},Log-forcing spline knot 3 (day 91 after 1 July; $g_0=0$),0.38296125671940473,-0.7505277920580602,1.5164503054968697,--,Estimated
+g_4,g_{4},Log-forcing spline knot 4 (day 122 after 1 July; $g_0=0$),0.5169577132749268,-0.6376417954801274,1.671557222029981,--,Estimated
+g_5,g_{5},Log-forcing spline knot 5 (day 152 after 1 July; $g_0=0$),1.1240416025091788,-0.03000486155737847,2.2780880665757364,--,Estimated
+g_6,g_{6},Log-forcing spline knot 6 (day 182 after 1 July; $g_0=0$),2.2246361969737483,1.0581811998857598,3.3910911940617368,--,Estimated
+g_7,g_{7},Log-forcing spline knot 7 (day 213 after 1 July; $g_0=0$),1.229390965897786,-0.006863105331733843,2.465645037127306,--,Estimated
+g_8,g_{8},Log-forcing spline knot 8 (day 243 after 1 July; $g_0=0$),0.05575449892822158,-1.1121637564304774,1.2236727542869203,--,Estimated
+g_9,g_{9},Log-forcing spline knot 9 (day 274 after 1 July; $g_0=0$),-0.33314075319307995,-1.4880372957897234,0.8217557894035636,--,Estimated
+g_10,g_{10},Log-forcing spline knot 10 (day 304 after 1 July; $g_0=0$),-0.3735409200849392,-1.4277867698689977,0.6807049296991191,--,Estimated
+g_11,g_{11},Log-forcing spline knot 11 (day 335 after 1 July; $g_0=0$),-0.20468681465502736,-0.9300565942237716,0.5206829649137169,--,Estimated
+p_c,p_c,Reporting fraction of symptomatic infections,0.12454473162878206,0.09845026931109244,0.1575555890809297,--,Estimated
+rho,\rho,Hospitalisation rate of $I$,0.0004515928783045816,0.00035987858478236777,0.000566680364875683,day$^{-1}$,Estimated
+delta_I,\delta_I,"Disease-induced death rate, community",2.148652480835546e-05,1.5583201452171117e-05,2.9626181100017328e-05,day$^{-1}$,Estimated
+E0,E_0,Exposed seed at season start,286.4622478691815,0.21452160756037253,382528.4566319042,persons,Estimated
+s0|2023/2024,s_0^{(23/24)},"Susceptible fraction at season start, 2023/2024",0.724133581379282,0.39793047903893675,1.0503366837196273,--,Estimated
+B_c|2023/2024,B_c^{(23/24)},"Background weekly reported cases, 2023/2024",33470.52677101791,28490.201647532638,39321.45430871132,cases week$^{-1}$,Estimated
+B_h|2023/2024,B_h^{(23/24)},"Background weekly admissions, 2023/2024",495.24935039984456,432.39662986832866,567.2382764550155,adm. week$^{-1}$,Estimated
+B_d|2023/2024,B_d^{(23/24)},"Background weekly deaths, 2023/2024",51.23734765261495,43.45449771272248,60.41413277471408,deaths week$^{-1}$,Estimated
+m|2024/2025,m^{(24/25)},"Season transmission multiplier (2023/24 = 1), 2024/2025",0.5894074196911098,0.49516348855028597,0.7015886962991454,--,Estimated
+h|2024/2025,h^{(24/25)},"Season Harmattan shift of spline knots 5--7 (2023/24 = 0), 2024/2025",-0.3169331445793475,-0.48231173010380257,-0.15155455905489246,--,Estimated
+s0|2024/2025,s_0^{(24/25)},"Susceptible fraction at season start, 2024/2025",0.9999435837127787,0.64733756254178,1.3525496048837775,--,Estimated (at bound)
+B_c|2024/2025,B_c^{(24/25)},"Background weekly reported cases, 2024/2025",8168.647194283029,6848.981259128888,9742.587176118932,cases week$^{-1}$,Estimated
+B_h|2024/2025,B_h^{(24/25)},"Background weekly admissions, 2024/2025",119.99655585246778,103.27702043889452,139.42281986120926,adm. week$^{-1}$,Estimated
+B_d|2024/2025,B_d^{(24/25)},"Background weekly deaths, 2024/2025",10.904212470853428,8.981258281239883,13.238885453041524,deaths week$^{-1}$,Estimated
+m|2025/2026,m^{(25/26)},"Season transmission multiplier (2023/24 = 1), 2025/2026",0.7601258434541411,0.6386394056831995,0.9047222779320414,--,Estimated
+h|2025/2026,h^{(25/26)},"Season Harmattan shift of spline knots 5--7 (2023/24 = 0), 2025/2026",0.0015596280943141545,-0.1909086528643441,0.1940279090529724,--,Estimated
+s0|2025/2026,s_0^{(25/26)},"Susceptible fraction at season start, 2025/2026",0.9237944801246943,0.5624308392531414,1.2851581209962473,--,Estimated
+B_c|2025/2026,B_c^{(25/26)},"Background weekly reported cases, 2025/2026",25251.109840290097,21495.470569537993,29662.925782605922,cases week$^{-1}$,Estimated
+B_h|2025/2026,B_h^{(25/26)},"Background weekly admissions, 2025/2026",377.26601089862396,329.3761685438078,432.11882513725476,adm. week$^{-1}$,Estimated
+B_d|2025/2026,B_d^{(25/26)},"Background weekly deaths, 2025/2026",35.181189341329535,29.763087132050458,41.585608306661214,deaths week$^{-1}$,Estimated

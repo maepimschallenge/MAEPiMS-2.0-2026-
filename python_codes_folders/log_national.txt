@@ -1,0 +1,4 @@
+start 1/1: cost=   43.235 nfev=43 (   79s)
+polish: cost=226.195 weights=[2.44 2.79 2.37] (128s)
+polish: cost=239.605 weights=[2.46 2.94 2.45] (181s)
+done in 181s; results -> /home/claude/maepims-flu/outputs/fit/national_fit.json

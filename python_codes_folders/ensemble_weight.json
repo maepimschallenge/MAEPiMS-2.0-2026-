@@ -1,0 +1,20 @@
+{
+ "w_mech": 0.25,
+ "shrink_c": 0.6,
+ "selected_by": "mean WIS relative to benchmark over 40 locations x 3 series",
+ "national_cases_WIS": {
+  "Benchmark (analogue)": 100301.51624266838,
+  "Ensemble w_mech=0.25": 101158.88350903666,
+  "Ensemble w_mech=0.5": 105740.54099748508,
+  "Ensemble w_mech=0.75": 116272.50672404091,
+  "Mechanistic": 131748.2872529838
+ },
+ "mean_relative_WIS_vs_benchmark": {
+  "Benchmark (analogue)": 1.0,
+  "Ensemble w_mech=0.25": 0.9710804629323022,
+  "Ensemble w_mech=0.5": 0.9854420899590113,
+  "Ensemble w_mech=0.75": 1.0425210126895137,
+  "Mechanistic": 1.1382853102401593
+ },
+ "final_mean_relative_WIS": 0.8567706547384907
+}

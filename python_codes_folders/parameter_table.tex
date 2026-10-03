@@ -1,0 +1,65 @@
+\begin{longtable}{llll l}
+\caption{Parameters of the SVEAITHQR model. Estimated values are maximum-likelihood
+estimates from the national data (2023/24--2025/26) with asymptotic 95\% intervals;
+assumed values are modelling assumptions varied in the sensitivity analysis.}
+\label{tab:parameters}\\
+\hline Symbol & Description & Value (95\% CI) & Unit & Source\\ \hline\endfirsthead
+\hline Symbol & Description & Value (95\% CI) & Unit & Source\\ \hline\endhead
+$\mu$ & Natural death rate (life expectancy 55 yr) & $4.981\times10^{-5}$ & day$^{-1}$ & Assumed\\
+$\sigma$ & Progression rate from E (latent period 2 d) & 0.5 & day$^{-1}$ & Assumed\\
+$\theta$ & Asymptomatic fraction & 0.3 & -- & Assumed\\
+$\gamma_A$ & Recovery rate, asymptomatic & 0.25 & day$^{-1}$ & Assumed\\
+$\gamma_I$ & Recovery rate, symptomatic (community) & 0.2 & day$^{-1}$ & Assumed\\
+$\gamma_H$ & Recovery rate, hospitalised & 0.1429 & day$^{-1}$ & Assumed\\
+$\gamma_T$ & Recovery rate, on antiviral therapy & 0.25 & day$^{-1}$ & Assumed\\
+$\gamma_Q$ & Recovery rate, isolated & 0.2 & day$^{-1}$ & Assumed\\
+$\alpha_A$ & Antiviral uptake rate, asymptomatic & 0.001 & day$^{-1}$ & Assumed\\
+$\alpha$ & Antiviral uptake rate, symptomatic & 0.02 & day$^{-1}$ & Assumed\\
+$\alpha_H$ & Antiviral uptake rate, hospitalised & 0.1 & day$^{-1}$ & Assumed\\
+$\phi_A$ & Isolation rate, asymptomatic & 0.001 & day$^{-1}$ & Assumed\\
+$\phi_I$ & Isolation rate, symptomatic & 0.05 & day$^{-1}$ & Assumed\\
+$\phi_H$ & Isolation rate, hospitalised & 0.05 & day$^{-1}$ & Assumed\\
+$\eta_I$ & Relative infectiousness of $I$ (reference $A$ = 1) & 1 & -- & Assumed\\
+$\eta_H$ & Relative infectiousness of $H$ & 0.2 & -- & Assumed\\
+$\eta_T$ & Relative infectiousness of $T$ & 0.5 & -- & Assumed\\
+$\eta_Q$ & Relative infectiousness of $Q$ & 0.1 & -- & Assumed\\
+$\varepsilon_V$ & Vaccine efficacy & 0.6 & -- & Assumed\\
+$\omega$ & Vaccination rate & $1.000\times10^{-5}$ & day$^{-1}$ & Assumed\\
+$\xi$ & Waning rate of vaccine protection & 0.005556 & day$^{-1}$ & Assumed\\
+$\kappa$ & Waning rate of infection-acquired immunity & 0.00274 & day$^{-1}$ & Assumed\\
+$\delta_H$ & Disease-induced death rate, hospitalised & 0.01278 & day$^{-1}$ & Assumed\\
+$\Lambda$ & Recruitment rate ($\mu N_0$) & $1.143\times10^{4}$ & persons day$^{-1}$ & Assumed\\
+$\beta_0$ & Mean transmission rate & 1.125 (0.8645, 1.463) & day$^{-1}$ & Estimated\\
+$g_{1}$ & Log-forcing spline knot 1 (day 30 after 1 July; $g_0=0$) & 0.2033 (-0.5764, 0.9829) & -- & Estimated\\
+$g_{2}$ & Log-forcing spline knot 2 (day 61 after 1 July; $g_0=0$) & 0.238 (-0.8771, 1.353) & -- & Estimated\\
+$g_{3}$ & Log-forcing spline knot 3 (day 91 after 1 July; $g_0=0$) & 0.383 (-0.7505, 1.516) & -- & Estimated\\
+$g_{4}$ & Log-forcing spline knot 4 (day 122 after 1 July; $g_0=0$) & 0.517 (-0.6376, 1.672) & -- & Estimated\\
+$g_{5}$ & Log-forcing spline knot 5 (day 152 after 1 July; $g_0=0$) & 1.124 (-0.03, 2.278) & -- & Estimated\\
+$g_{6}$ & Log-forcing spline knot 6 (day 182 after 1 July; $g_0=0$) & 2.225 (1.058, 3.391) & -- & Estimated\\
+$g_{7}$ & Log-forcing spline knot 7 (day 213 after 1 July; $g_0=0$) & 1.229 (-0.006863, 2.466) & -- & Estimated\\
+$g_{8}$ & Log-forcing spline knot 8 (day 243 after 1 July; $g_0=0$) & 0.05575 (-1.112, 1.224) & -- & Estimated\\
+$g_{9}$ & Log-forcing spline knot 9 (day 274 after 1 July; $g_0=0$) & -0.3331 (-1.488, 0.8218) & -- & Estimated\\
+$g_{10}$ & Log-forcing spline knot 10 (day 304 after 1 July; $g_0=0$) & -0.3735 (-1.428, 0.6807) & -- & Estimated\\
+$g_{11}$ & Log-forcing spline knot 11 (day 335 after 1 July; $g_0=0$) & -0.2047 (-0.9301, 0.5207) & -- & Estimated\\
+$p_c$ & Reporting fraction of symptomatic infections & 0.1245 (0.09845, 0.1576) & -- & Estimated\\
+$\rho$ & Hospitalisation rate of $I$ & $4.516\times10^{-4}$ ($3.599\times10^{-4}$, $5.667\times10^{-4}$) & day$^{-1}$ & Estimated\\
+$\delta_I$ & Disease-induced death rate, community & $2.149\times10^{-5}$ ($1.558\times10^{-5}$, $2.963\times10^{-5}$) & day$^{-1}$ & Estimated\\
+$E_0$ & Exposed seed at season start & 286.5 (0.2145, $3.825\times10^{5}$) & persons & Estimated\\
+$s_0^{(23/24)}$ & Susceptible fraction at season start, 2023/2024 & 0.7241 (0.3979, 1.05) & -- & Estimated\\
+$B_c^{(23/24)}$ & Background weekly reported cases, 2023/2024 & $3.347\times10^{4}$ ($2.849\times10^{4}$, $3.932\times10^{4}$) & cases week$^{-1}$ & Estimated\\
+$B_h^{(23/24)}$ & Background weekly admissions, 2023/2024 & 495.2 (432.4, 567.2) & adm. week$^{-1}$ & Estimated\\
+$B_d^{(23/24)}$ & Background weekly deaths, 2023/2024 & 51.24 (43.45, 60.41) & deaths week$^{-1}$ & Estimated\\
+$m^{(24/25)}$ & Season transmission multiplier (2023/24 = 1), 2024/2025 & 0.5894 (0.4952, 0.7016) & -- & Estimated\\
+$h^{(24/25)}$ & Season Harmattan shift of spline knots 5--7 (2023/24 = 0), 2024/2025 & -0.3169 (-0.4823, -0.1516) & -- & Estimated\\
+$s_0^{(24/25)}$ & Susceptible fraction at season start, 2024/2025 & 0.9999 (0.6473, 1.353) & -- & Estimated (at bound)\\
+$B_c^{(24/25)}$ & Background weekly reported cases, 2024/2025 & 8169 (6849, 9743) & cases week$^{-1}$ & Estimated\\
+$B_h^{(24/25)}$ & Background weekly admissions, 2024/2025 & 120 (103.3, 139.4) & adm. week$^{-1}$ & Estimated\\
+$B_d^{(24/25)}$ & Background weekly deaths, 2024/2025 & 10.9 (8.981, 13.24) & deaths week$^{-1}$ & Estimated\\
+$m^{(25/26)}$ & Season transmission multiplier (2023/24 = 1), 2025/2026 & 0.7601 (0.6386, 0.9047) & -- & Estimated\\
+$h^{(25/26)}$ & Season Harmattan shift of spline knots 5--7 (2023/24 = 0), 2025/2026 & 0.00156 (-0.1909, 0.194) & -- & Estimated\\
+$s_0^{(25/26)}$ & Susceptible fraction at season start, 2025/2026 & 0.9238 (0.5624, 1.285) & -- & Estimated\\
+$B_c^{(25/26)}$ & Background weekly reported cases, 2025/2026 & $2.525\times10^{4}$ ($2.150\times10^{4}$, $2.966\times10^{4}$) & cases week$^{-1}$ & Estimated\\
+$B_h^{(25/26)}$ & Background weekly admissions, 2025/2026 & 377.3 (329.4, 432.1) & adm. week$^{-1}$ & Estimated\\
+$B_d^{(25/26)}$ & Background weekly deaths, 2025/2026 & 35.18 (29.76, 41.59) & deaths week$^{-1}$ & Estimated\\
+\hline
+\end{longtable}

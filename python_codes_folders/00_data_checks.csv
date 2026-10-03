@@ -1,0 +1,9 @@
+check,result
+states + FCT,True
+weeks per state,True
+sum of states == national (all 3 series),True
+national population == sum of state populations,True
+no missing values,True
+no negative counts,True
+all week_start are Mondays,True
+state-weeks with deaths > hospitalisations,34

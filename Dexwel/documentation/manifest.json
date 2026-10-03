@@ -1,0 +1,68 @@
+{
+  "seasons": [
+    "2023/2024",
+    "2024/2025",
+    "2025/2026"
+  ],
+  "season_length": 52,
+  "latest_season": "2025/2026",
+  "forecast_origin_epi_week": 52,
+  "forecast_horizon": 8,
+  "n_feature_rows": 43660,
+  "n_features": 29,
+  "lgb_params": {
+    "num_leaves": 31,
+    "learning_rate": 0.05,
+    "n_estimators": 300,
+    "min_child_samples": 20,
+    "subsample": 0.8,
+    "colsample_bytree": 0.8,
+    "reg_lambda": 1.0,
+    "random_state": 20260905,
+    "verbosity": -1
+  },
+  "rf_params": {
+    "n_estimators": 100,
+    "max_depth": null,
+    "min_samples_leaf": 5,
+    "max_features": "sqrt",
+    "n_jobs": -1,
+    "random_state": 20260905
+  },
+  "deployed_model": "Ensemble (LightGBM + RF)",
+  "evaluation_summary": {
+    "cases": {
+      "mae": 149.024,
+      "rmse": 369.732,
+      "wis_star": 491.322,
+      "crps_approx": 104.193,
+      "coverage_90": 0.504
+    },
+    "deaths": {
+      "mae": 0.216,
+      "rmse": 0.501,
+      "wis_star": 0.652,
+      "crps_approx": 0.141,
+      "coverage_90": 0.621
+    },
+    "hospitalizations": {
+      "mae": 2.174,
+      "rmse": 5.083,
+      "wis_star": 6.844,
+      "crps_approx": 1.46,
+      "coverage_90": 0.502
+    }
+  },
+  "top_features_cases": {
+    "week_sin": 1180,
+    "horizon": 705,
+    "week_cos": 671,
+    "origin_week_sin": 482,
+    "climate": 446,
+    "cases_per_100k_lag1": 403,
+    "cases_per_100k_roll_std4": 395,
+    "cases_per_100k_lag4": 370,
+    "origin_week_cos": 366,
+    "cases_per_100k_roll_mean4": 341
+  }
+}

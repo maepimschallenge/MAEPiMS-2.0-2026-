@@ -1,0 +1,5 @@
+__pycache__/
+*.pyc
+# training writes many files to source_code/outputs/; only the trained model is kept in git
+source_code/outputs/*
+!source_code/outputs/model_bundle.pkl.gz

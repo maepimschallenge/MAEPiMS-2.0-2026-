@@ -1,0 +1,97 @@
+\relax 
+\providecommand\hyper@newdestlabel[2]{}
+\providecommand\HyField@AuxAddToFields[1]{}
+\providecommand\HyField@AuxAddToCoFields[2]{}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}{section.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {paragraph}{Research questions.}{2}{section*.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {2}Data and Exploratory Findings}{2}{section.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Data}{2}{subsection.2.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces National seasonal summary (population 229.5 million). Peak week is the largest weekly count in weeks 2--22 (first wave).}}{2}{table.caption.2}\protected@file@percent }
+\providecommand*\caption@xref[2]{\@setref\relax\@undefined{#1}}
+\newlabel{tab:data}{{1}{2}{National seasonal summary (population 229.5 million). Peak week is the largest weekly count in weeks 2--22 (first wave)}{table.caption.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Features of the data that shape the design}{2}{subsection.2.2}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces National weekly cases, hospitalisations and deaths, 2023/24--2025/26.}}{3}{figure.caption.3}\protected@file@percent }
+\newlabel{fig:national}{{1}{3}{National weekly cases, hospitalisations and deaths, 2023/24--2025/26}{figure.caption.3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces State-level weekly incidence per 100{,}000 (log$_{10}$), 2024/25, states ordered by region, zone and healthcare access. Southern states peak earlier; northern states show the stronger secondary wave.}}{4}{figure.caption.4}\protected@file@percent }
+\newlabel{fig:heat}{{2}{4}{State-level weekly incidence per 100{,}000 (log$_{10}$), 2024/25, states ordered by region, zone and healthcare access. Southern states peak earlier; northern states show the stronger secondary wave}{figure.caption.4}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Assumptions}{4}{section.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {4}Methodology: WDA-STHNet}{4}{section.4}\protected@file@percent }
+\newlabel{sec:method}{{4}{4}{Methodology: WDA-STHNet}{section.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Notation}{4}{subsection.4.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces WDA-STHNet architecture. The dashed arrow shows that attention pools the incidence of other states.}}{5}{figure.caption.5}\protected@file@percent }
+\newlabel{fig:arch}{{3}{5}{WDA-STHNet architecture. The dashed arrow shows that attention pools the incidence of other states}{figure.caption.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Tier 1 --- Multi-resolution wavelet decomposition (MRWD)}{5}{subsection.4.2}\protected@file@percent }
+\newlabel{eq:modwt}{{1}{5}{Tier 1 --- Multi-resolution wavelet decomposition (MRWD)}{equation.1}{}}
+\newlabel{eq:additive}{{2}{5}{Tier 1 --- Multi-resolution wavelet decomposition (MRWD)}{equation.2}{}}
+\@writefile{toc}{\contentsline {paragraph}{Why causal.}{5}{section*.6}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Causal MODWT-Haar decomposition of the national 2024/25 series ($J=3$).}}{6}{figure.caption.7}\protected@file@percent }
+\newlabel{fig:mrwd}{{4}{6}{Causal MODWT-Haar decomposition of the national 2024/25 series ($J=3$)}{figure.caption.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Tier 2 --- Healthcare-weighted spatial attention (HW-SA)}{6}{subsection.4.3}\protected@file@percent }
+\newlabel{sec:hwsa}{{4.3}{6}{Tier 2 --- Healthcare-weighted spatial attention (HW-SA)}{subsection.4.3}{}}
+\newlabel{eq:attn}{{3}{6}{Tier 2 --- Healthcare-weighted spatial attention (HW-SA)}{equation.3}{}}
+\newlabel{eq:pressure}{{4}{6}{Tier 2 --- Healthcare-weighted spatial attention (HW-SA)}{equation.4}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Tier 3 --- Quantile gradient-boosting core (Q-GBC)}{6}{subsection.4.4}\protected@file@percent }
+\@writefile{loa}{\contentsline {algorithm}{\numberline {1}{\ignorespaces Q-GBC for quantile $\tau $ (pinball-loss boosting with leaf re-fitting)}}{7}{algorithm.1}\protected@file@percent }
+\newlabel{alg:qgbc}{{1}{7}{Q-GBC for quantile $\tau $ (pinball-loss boosting with leaf re-fitting)}{algorithm.1}{}}
+\@writefile{toc}{\contentsline {paragraph}{Feature vector.}{7}{section*.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}National models}{7}{subsection.4.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5}Evaluation Design}{7}{section.5}\protected@file@percent }
+\newlabel{sec:eval}{{5}{7}{Evaluation Design}{section.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.1}Leave-one-season-out rolling-origin protocol}{7}{subsection.5.1}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.2}Models compared}{8}{subsection.5.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.3}Scores}{8}{subsection.5.3}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {5.4}Implementation}{8}{subsection.5.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6}Results}{8}{section.6}\protected@file@percent }
+\newlabel{sec:results}{{6}{8}{Results}{section.6}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Overall state-level performance}{8}{subsection.6.1}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces State-level forecasts of weekly cases, pooled over 37 states, 3 held-out seasons, 43 origins and 4 horizons (19{,}092 forecasts per model). Scores on the count scale; coverage is the empirical coverage of the nominal 50\% and 90\% intervals. The last column is WIS restricted to epidemic-phase origins.}}{8}{table.caption.9}\protected@file@percent }
+\newlabel{tab:main}{{2}{8}{State-level forecasts of weekly cases, pooled over 37 states, 3 held-out seasons, 43 origins and 4 horizons (19{,}092 forecasts per model). Scores on the count scale; coverage is the empirical coverage of the nominal 50\% and 90\% intervals. The last column is WIS restricted to epidemic-phase origins}{table.caption.9}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces WIS by forecast horizon (weeks) and coverage of WDA-STHNet intervals.}}{9}{table.caption.10}\protected@file@percent }
+\newlabel{tab:hor}{{3}{9}{WIS by forecast horizon (weeks) and coverage of WDA-STHNet intervals}{table.caption.10}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Ablation by horizon: WIS of each variant relative to the lags-only Q-GBC (values below 1 are better). Left: all origins; right: epidemic-phase origins only.}}{9}{figure.caption.11}\protected@file@percent }
+\newlabel{fig:abl}{{5}{9}{Ablation by horizon: WIS of each variant relative to the lags-only Q-GBC (values below 1 are better). Left: all origins; right: epidemic-phase origins only}{figure.caption.11}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}RQ1 --- Wavelets versus moving averages}{9}{subsection.6.2}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}RQ2 --- Healthcare-weighted spatial attention}{9}{subsection.6.3}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Paired comparisons of state-mean WIS (negative = model A better), 37 states.}}{10}{table.caption.12}\protected@file@percent }
+\newlabel{tab:pair}{{4}{10}{Paired comparisons of state-mean WIS (negative = model A better), 37 states}{table.caption.12}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces State-level skill versus healthcare access. Left: WIS ratio of WDA-STHNet to persistence. Right: ratio to the MRWD-only variant (the contribution of HW-SA).}}{10}{figure.caption.13}\protected@file@percent }
+\newlabel{fig:gain}{{6}{10}{State-level skill versus healthcare access. Left: WIS ratio of WDA-STHNet to persistence. Right: ratio to the MRWD-only variant (the contribution of HW-SA)}{figure.caption.13}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.4}RQ3 --- Calibration across seasons}{10}{subsection.6.4}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces WIS and 90\% coverage by held-out season, state level.}}{11}{table.caption.14}\protected@file@percent }
+\newlabel{tab:season}{{5}{11}{WIS and 90\% coverage by held-out season, state level}{table.caption.14}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Left: empirical coverage of the 50\% and 90\% intervals by held-out season for three models. Right: coverage of WDA-STHNet by horizon.}}{11}{figure.caption.15}\protected@file@percent }
+\newlabel{fig:cal}{{7}{11}{Left: empirical coverage of the 50\% and 90\% intervals by held-out season for three models. Right: coverage of WDA-STHNet by horizon}{figure.caption.15}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.5}National cases, hospitalisations and deaths}{11}{subsection.6.5}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces National forecasts (LOSO, 43 origins $\times $ 4 horizons $\times $ 3 seasons), count scale.}}{11}{table.caption.16}\protected@file@percent }
+\newlabel{tab:nat}{{6}{11}{National forecasts (LOSO, 43 origins $\times $ 4 horizons $\times $ 3 seasons), count scale}{table.caption.16}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces National WDA-STHNet forecasts of weekly cases with 50\% and 90\% prediction intervals for $h=1$ (left) and $h=4$ (right) in each held-out season; dashed: observed.}}{12}{figure.caption.17}\protected@file@percent }
+\newlabel{fig:fan}{{8}{12}{National WDA-STHNet forecasts of weekly cases with 50\% and 90\% prediction intervals for $h=1$ (left) and $h=4$ (right) in each held-out season; dashed: observed}{figure.caption.17}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces State-level examples (2024/25, $h=2$): Lagos ($\mathrm  {hc}=0.90$), Rivers (0.70), Kano (0.55) and Borno (0.34).}}{13}{figure.caption.18}\protected@file@percent }
+\newlabel{fig:states}{{9}{13}{State-level examples (2024/25, $h=2$): Lagos ($\hc =0.90$), Rivers (0.70), Kano (0.55) and Borno (0.34)}{figure.caption.18}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.6}Interpretation of the fitted model}{13}{subsection.6.6}\protected@file@percent }
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Feature importance of WDA-STHNet ($h=1$, hold-out 2025/26).}}{14}{table.caption.19}\protected@file@percent }
+\newlabel{tab:imp}{{7}{14}{Feature importance of WDA-STHNet ($h=1$, hold-out 2025/26)}{table.caption.19}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Attention weights $\alpha _{ij}$ at epi-week 14 of 2024/25 (rows: target state, columns: source state, ordered by zone and access).}}{14}{figure.caption.20}\protected@file@percent }
+\newlabel{fig:attn}{{10}{14}{Attention weights $\alpha _{ij}$ at epi-week 14 of 2024/25 (rows: target state, columns: source state, ordered by zone and access)}{figure.caption.20}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Feature importance (share of total split importance).}}{15}{figure.caption.21}\protected@file@percent }
+\newlabel{fig:imp}{{11}{15}{Feature importance (share of total split importance)}{figure.caption.21}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Replication of the Original Script's Protocol}{15}{section.7}\protected@file@percent }
+\newlabel{sec:leak}{{7}{15}{Replication of the Original Script's Protocol}{section.7}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces Same-week features versus honest features on the original 80/20 split (median Q-GBC).}}{15}{table.caption.22}\protected@file@percent }
+\newlabel{tab:leak}{{8}{15}{Same-week features versus honest features on the original 80/20 split (median Q-GBC)}{table.caption.22}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces MAE on the original 80/20 test slice with and without same-week features.}}{16}{figure.caption.23}\protected@file@percent }
+\newlabel{fig:leak}{{12}{16}{MAE on the original 80/20 test slice with and without same-week features}{figure.caption.23}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {8}Policy Implications}{16}{section.8}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {9}Uncertainty, Limitations and Discussion}{16}{section.9}\protected@file@percent }
+\newlabel{sec:limits}{{9}{16}{Uncertainty, Limitations and Discussion}{section.9}{}}
+\bibcite{bracher}{1}
+\bibcite{gneiting}{2}
+\bibcite{percival}{3}
+\bibcite{friedman}{4}
+\bibcite{koenker}{5}
+\bibcite{vaswani}{6}
+\bibcite{therneau}{7}
+\@writefile{toc}{\contentsline {section}{\numberline {10}Conclusions}{17}{section.10}\protected@file@percent }
+\bibcite{maepims}{8}
+\bibcite{rcore}{9}
+\gdef \@abspage@last{18}

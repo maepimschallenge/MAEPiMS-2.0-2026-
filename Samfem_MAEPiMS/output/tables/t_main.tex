@@ -1,0 +1,15 @@
+\begin{tabular}{lrrrrrr}
+\toprule
+Model & WIS & MAE & RMSE & Cov.\ 50\% & Cov.\ 90\% & WIS (epidemic) \\
+\midrule
+Persistence (empirical growth quantiles) & 13,674 & 16,691 & 40,939 & 0.50 & 0.89 & 26,121 \\
+Climatology (week-specific) & 7,174 & 9,319 & 25,447 & 0.33 & 0.63 & 14,175 \\
+\midrule
+Q-GBC, lags only & 5,002 & 7,069 & 20,835 & 0.40 & 0.79 & 10,300 \\
+Q-GBC + moving-average features & 4,726 & 6,743 & 20,246 & 0.40 & 0.79 & 9,751 \\
+Q-GBC + MRWD (Tier 1) & 4,739 & 6,740 & 20,189 & 0.40 & 0.80 & 9,780 \\
+Q-GBC + MRWD + uniform spatial pooling & 4,362 & 6,366 & 19,483 & 0.39 & 0.78 & 8,984 \\
+Q-GBC + MRWD + adjacency attention (no $hc$) & 4,152 & 6,123 & 18,914 & 0.41 & 0.79 & 8,557 \\
+\textbf{WDA-STHNet} (MRWD + HW-SA + Q-GBC) & 4,205 & 6,177 & 18,945 & 0.40 & 0.79 & 8,676 \\
+\bottomrule
+\end{tabular}

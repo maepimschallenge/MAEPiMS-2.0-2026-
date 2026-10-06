@@ -1,0 +1,5 @@
+"item","MAE","n_test","test_weeks"
+"Original protocol (same-week features)",24420.8179581852,31,"season 2025/2026 wk 22-52"
+"Same split, same-week features removed",46160.1553143934,31,"season 2025/2026 wk 22-52"
+"Persistence (lag-1)",51927.1612903226,31,"season 2025/2026 wk 22-52"
+"Training-mean predictor",451663.65422554,31,"season 2025/2026 wk 22-52"

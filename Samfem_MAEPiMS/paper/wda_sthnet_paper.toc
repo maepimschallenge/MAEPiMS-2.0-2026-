@@ -1,0 +1,30 @@
+\contentsline {section}{\numberline {1}Introduction}{3}{section.1}%
+\contentsline {paragraph}{Research questions.}{3}{section*.2}%
+\contentsline {section}{\numberline {2}Data and Exploratory Findings}{3}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Data}{3}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Features of the data that shape the design}{4}{subsection.2.2}%
+\contentsline {section}{\numberline {3}Assumptions}{5}{section.3}%
+\contentsline {section}{\numberline {4}Methodology: WDA-STHNet}{5}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Notation}{5}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Tier 1 --- Multi-resolution wavelet decomposition (MRWD)}{6}{subsection.4.2}%
+\contentsline {paragraph}{Why causal.}{6}{section*.7}%
+\contentsline {subsection}{\numberline {4.3}Tier 2 --- Healthcare-weighted spatial attention (HW-SA)}{7}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}Tier 3 --- Quantile gradient-boosting core (Q-GBC)}{7}{subsection.4.4}%
+\contentsline {paragraph}{Feature vector.}{8}{section*.9}%
+\contentsline {subsection}{\numberline {4.5}National models}{8}{subsection.4.5}%
+\contentsline {section}{\numberline {5}Evaluation Design}{8}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Leave-one-season-out rolling-origin protocol}{8}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Models compared}{9}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}Scores}{9}{subsection.5.3}%
+\contentsline {subsection}{\numberline {5.4}Implementation}{9}{subsection.5.4}%
+\contentsline {section}{\numberline {6}Results}{9}{section.6}%
+\contentsline {subsection}{\numberline {6.1}Overall state-level performance}{9}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.2}RQ1 --- Wavelets versus moving averages}{10}{subsection.6.2}%
+\contentsline {subsection}{\numberline {6.3}RQ2 --- Healthcare-weighted spatial attention}{10}{subsection.6.3}%
+\contentsline {subsection}{\numberline {6.4}RQ3 --- Calibration across seasons}{11}{subsection.6.4}%
+\contentsline {subsection}{\numberline {6.5}National cases, hospitalisations and deaths}{12}{subsection.6.5}%
+\contentsline {subsection}{\numberline {6.6}Interpretation of the fitted model}{14}{subsection.6.6}%
+\contentsline {section}{\numberline {7}Replication of the Original Script's Protocol}{16}{section.7}%
+\contentsline {section}{\numberline {8}Policy Implications}{17}{section.8}%
+\contentsline {section}{\numberline {9}Uncertainty, Limitations and Discussion}{17}{section.9}%
+\contentsline {section}{\numberline {10}Conclusions}{18}{section.10}%

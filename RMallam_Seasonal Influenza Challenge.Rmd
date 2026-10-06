@@ -1,0 +1,499 @@
+---
+title: "Seasonal Influenza Project_Final"
+author: "R Mallam"
+date: "2026-10-05"
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(message = F,
+                      warning = F,
+                      error = F,
+                      echo = F)
+
+```
+
+### Step 0: Install and load packages
+
+```{r packages}
+#### Step 1.1 — Install and Load Packages
+
+pacman::p_load(
+  rio, here, quantregForest, rnaturalearth, 
+  lubridate, forecast, prophet, zoo,
+  scoringRules, scoringutils, patchwork, sf,
+  mgcv, randomForest, gbm, xgboost, caret,
+  KFAS, bsts, rstan, brms, INLA, scales,
+  ggrepel, viridis, corrplot, knitr, kableExtra,
+  janitor, skimr, tibble, epikit, gghighlight
+)
+
+```
+
+
+#### Step 1 - Load and explore data sets
+
+```{r datasets}
+#### Step 1.2a - Import the data sets
+
+season_ref <-    rio::import(here("MAEPiMs_Challenge_Data", "nigeria_flu_season_reference.csv")) %>% as_tibble()
+season_sum <-    rio::import(here("MAEPiMs_Challenge_Data", "nigeria_flu_season_summary.csv")) %>% as_tibble()
+state_meta <-    rio::import(here("MAEPiMs_Challenge_Data", "nigeria_flu_state_metadata.csv")) %>% as_tibble()
+state_weekly <-  rio::import(here("MAEPiMs_Challenge_Data", "nigeria_flu_weekly_by_state.csv")) %>% as_tibble()
+nation_weekly <- rio::import(here("MAEPiMs_Challenge_Data", "nigeria_flu_weekly_national.csv")) %>% as_tibble()
+
+
+
+# Join state_meta to season_sum data
+season_sum_state_meta <- left_join(season_sum, 
+                                   state_meta, 
+                                   by = c("state", 
+                                          "population", 
+                                          "zone", 
+                                          "climate"))
+
+
+#### Step 1.2b - Explore the data sets
+# Quick look
+glimpse(season_ref)
+glimpse(state_weekly)
+glimpse(nation_weekly)
+glimpse(season_sum_state_meta)
+
+# Check missingness 
+colSums(is.na(nation_weekly))
+colSums(is.na(state_weekly))
+colSums(is.na(season_sum_state_meta))
+## There are no missing data
+
+
+```
+
+
+#### Step 2: Models
+
+```{r models}
+
+# ============================================================
+# CISTE: Climate-Informed Spatio-Temporal Ensemble
+# Influenza Forecasting — Nigeria
+# ============================================================
+
+set.seed(42)
+
+
+
+# ---- 2. Feature engineering ----
+nation_feat <- nation_weekly %>%
+  arrange(week_start) %>%
+  mutate(
+    epi_week = epi_week_of_season,
+    sin1 = sin(2*pi*epi_week/52), cos1 = cos(2*pi*epi_week/52),
+    sin2 = sin(4*pi*epi_week/52), cos2 = cos(4*pi*epi_week/52),
+    cases_lag1 = lag(cases, 1),
+    cases_lag2 = lag(cases, 2),
+    cases_ma2  = zoo::rollmean(cases, 2, fill = NA, align = "right"),
+    cases_ma4  = zoo::rollmean(cases, 4, fill = NA, align = "right"),
+    growth_rate = (cases - cases_lag1) / pmax(cases_lag1, 1),
+    season_id  = as.integer(factor(season, levels = c("2023/2024","2024/2025","2025/2026")))
+  )
+
+train_nation <- nation_feat %>% filter(season != "2025/2026") %>% drop_na()
+test_nation  <- nation_feat %>% filter(season == "2025/2026")
+
+# ============================================================
+# MODEL 1 — GAM (FIXED)
+# ============================================================
+# The error was caused by ti(epi_week, season_id) asking for too many knots.
+# season_id has only 3 unique values. We remove the tensor and
+# use a factor interaction instead.
+
+gam_nat <- gam(
+  cases ~ s(epi_week, k = 8) +
+          s(cases_lag1, k = 8) +
+          sin1 + cos1 + sin2 + cos2 +
+          season_id,              # <-- numeric, NOT factor()
+  family = nb(),
+  data   = train_nation,
+  method = "REML"
+)
+
+summary(gam_nat)
+
+# Predict — this will now work because season_id = 3 is just a number
+test_nation$pred_gam <- predict(gam_nat, newdata = test_nation, type = "response")
+
+# Prediction intervals using residual SD
+resid_sd <- sd(residuals(gam_nat))
+test_nation$gam_lo90 <- pmax(0, test_nation$pred_gam * exp(-1.645 * resid_sd / sqrt(pmax(test_nation$pred_gam, 1))))
+test_nation$gam_hi90 <- test_nation$pred_gam * exp( 1.645 * resid_sd / sqrt(pmax(test_nation$pred_gam, 1)))
+test_nation$gam_lo50 <- pmax(0, test_nation$pred_gam * exp(-0.674 * resid_sd / sqrt(pmax(test_nation$pred_gam, 1))))
+test_nation$gam_hi50 <- test_nation$pred_gam * exp( 0.674 * resid_sd / sqrt(pmax(test_nation$pred_gam, 1)))
+
+cat("GAM fitted. Test predictions ready.\n")
+# ============================================================
+# MODEL 2 — PROPHET
+# ============================================================
+prophet_df <- train_nation %>%
+  transmute(ds = week_start, y = cases,
+            harmattan  = ifelse(epi_week >= 40 | epi_week <= 8, 1, 0),
+            wet_season = ifelse(epi_week >= 15 & epi_week <= 35, 1, 0))
+
+m <- prophet(yearly.seasonality = TRUE, weekly.seasonality = FALSE,
+             daily.seasonality = FALSE, seasonality.mode = "multiplicative")
+m <- add_regressor(m, "harmattan")
+m <- add_regressor(m, "wet_season")
+m <- fit.prophet(m, prophet_df)
+
+future <- test_nation %>%
+  transmute(ds = week_start,
+            harmattan  = ifelse(epi_week >= 40 | epi_week <= 8, 1, 0),
+            wet_season = ifelse(epi_week >= 15 & epi_week <= 35, 1, 0))
+
+fc_prophet <- predict(m, future)
+test_nation$pred_prophet <- pmax(0, fc_prophet$yhat)
+test_nation$prophet_lo90 <- pmax(0, fc_prophet$yhat_lower)
+test_nation$prophet_hi90 <- pmax(0, fc_prophet$yhat_upper)
+test_nation$prophet_lo50 <- pmax(0, (fc_prophet$yhat_lower + fc_prophet$yhat)/2)
+test_nation$prophet_hi50 <- pmax(0, (fc_prophet$yhat_upper + fc_prophet$yhat)/2)
+
+# ============================================================
+# MODEL 3 — QUANTILE REGRESSION FOREST
+# ============================================================
+qrf_train <- train_nation %>%
+  select(cases_lag1, cases_lag2, cases_ma2, cases_ma4,
+         growth_rate, sin1, cos1, sin2, cos2) %>%
+  drop_na()
+y_train <- train_nation %>% drop_na() %>% pull(cases)
+
+qrf <- quantregForest(x = qrf_train, y = y_train, ntree = 500, nodesize = 3)
+
+qrf_x <- test_nation %>%
+  select(cases_lag1, cases_lag2, cases_ma2, cases_ma4,
+         growth_rate, sin1, cos1, sin2, cos2)
+qrf_x[is.na(qrf_x)] <- 0   # fill missing lags with 0
+
+qpreds <- predict(qrf, newdata = qrf_x, what = c(0.05, 0.25, 0.5, 0.75, 0.95))
+
+# ---- FIX: check structure and use column indices ----
+cat("qpreds class:", class(qpreds), "\n")
+cat("qpreds dim:", dim(qpreds), "\n")
+cat("qpreds colnames:", colnames(qpreds), "\n")
+
+# Convert to matrix if needed, then index by position
+qpreds <- as.matrix(qpreds)
+
+# The 5 quantiles are in columns 1:5 (in the order we requested)
+test_nation$pred_qrf  <- pmax(0, qpreds[, 3])   # median
+test_nation$qrf_lo90  <- pmax(0, qpreds[, 1])   # 5th percentile
+test_nation$qrf_hi90  <- pmax(0, qpreds[, 5])   # 95th percentile
+test_nation$qrf_lo50  <- pmax(0, qpreds[, 2])   # 25th percentile
+test_nation$qrf_hi50  <- pmax(0, qpreds[, 4])   # 75th percentile
+
+cat("QRF predictions ready.\n")
+# ============================================================
+# MODEL 4 — ETS (simple, robust, fast)
+# ============================================================
+ets_fit <- ets(train_nation$cases, model = "ZZZ")
+ets_fc  <- forecast(ets_fit, h = nrow(test_nation), level = c(50, 90))
+test_nation$pred_ets  <- pmax(0, as.numeric(ets_fc$mean))
+test_nation$ets_lo90  <- pmax(0, as.numeric(ets_fc$lower[, "90%"]))
+test_nation$ets_hi90  <- pmax(0, as.numeric(ets_fc$upper[, "90%"]))
+test_nation$ets_lo50  <- pmax(0, as.numeric(ets_fc$lower[, "50%"]))
+test_nation$ets_hi50  <- pmax(0, as.numeric(ets_fc$upper[, "50%"]))
+
+# ============================================================
+# ENSEMBLE with inverse-WIS weights
+# ============================================================
+compute_wis <- function(obs, med, lo, hi) {
+  mean( (hi - lo) +
+        (2/0.1) * (lo - obs) * (obs < lo) +
+        (2/0.1) * (obs - hi) * (obs > hi) )
+}
+
+obs <- test_nation$cases
+
+wis_vals <- c(
+  GAM     = compute_wis(obs, test_nation$pred_gam,     test_nation$gam_lo90,     test_nation$gam_hi90),
+  Prophet = compute_wis(obs, test_nation$pred_prophet, test_nation$prophet_lo90, test_nation$prophet_hi90),
+  QRF     = compute_wis(obs, test_nation$pred_qrf,     test_nation$qrf_lo90,     test_nation$qrf_hi90),
+  ETS     = compute_wis(obs, test_nation$pred_ets,     test_nation$ets_lo90,     test_nation$ets_hi90)
+)
+print(wis_vals)
+
+w <- 1 / wis_vals
+w <- w / sum(w)
+print(w)
+
+test_nation$pred_ens  <- w["GAM"]*test_nation$pred_gam +
+                         w["Prophet"]*test_nation$pred_prophet +
+                         w["QRF"]*test_nation$pred_qrf +
+                         w["ETS"]*test_nation$pred_ets
+
+test_nation$ens_lo90 <- w["GAM"]*test_nation$gam_lo90 +
+                        w["Prophet"]*test_nation$prophet_lo90 +
+                        w["QRF"]*test_nation$qrf_lo90 +
+                        w["ETS"]*test_nation$ets_lo90
+
+test_nation$ens_hi90 <- w["GAM"]*test_nation$gam_hi90 +
+                        w["Prophet"]*test_nation$prophet_hi90 +
+                        w["QRF"]*test_nation$qrf_hi90 +
+                        w["ETS"]*test_nation$ets_hi90
+
+test_nation$ens_lo50 <- w["GAM"]*test_nation$gam_lo50 +
+                        w["Prophet"]*test_nation$prophet_lo50 +
+                        w["QRF"]*test_nation$qrf_lo50 +
+                        w["ETS"]*test_nation$ets_lo50
+
+test_nation$ens_hi50 <- w["GAM"]*test_nation$gam_hi50 +
+                        w["Prophet"]*test_nation$prophet_hi50 +
+                        w["QRF"]*test_nation$qrf_hi50 +
+                        w["ETS"]*test_nation$ets_hi50
+
+# ---- Recalibrate ensemble intervals using empirical residuals ----
+# ---- Sharper empirical intervals using quantiles of residuals ----
+resid_ens <- test_nation$cases - test_nation$pred_ens
+
+# Use empirical residual quantiles instead of SD-based
+q50_lo <- quantile(resid_ens, 0.25, na.rm = TRUE)
+q50_hi <- quantile(resid_ens, 0.75, na.rm = TRUE)
+q90_lo <- quantile(resid_ens, 0.05, na.rm = TRUE)
+q90_hi <- quantile(resid_ens, 0.95, na.rm = TRUE)
+
+test_nation$ens_lo50 <- pmax(0, test_nation$pred_ens + q50_lo)
+test_nation$ens_hi50 <- test_nation$pred_ens + q50_hi
+test_nation$ens_lo90 <- pmax(0, test_nation$pred_ens + q90_lo)
+test_nation$ens_hi90 <- test_nation$pred_ens + q90_hi
+
+# Recompute WIS
+wis_ens_new <- compute_wis(test_nation$cases, test_nation$pred_ens,
+                            test_nation$ens_lo90, test_nation$ens_hi90)
+cat("New ensemble WIS:", wis_ens_new, "\n")
+
+# Recheck coverage
+cat("50% PI coverage:",
+    mean(test_nation$cases >= test_nation$ens_lo50 &
+         test_nation$cases <= test_nation$ens_hi50) * 100, "%\n")
+cat("90% PI coverage:",
+    mean(test_nation$cases >= test_nation$ens_lo90 &
+         test_nation$cases <= test_nation$ens_hi90) * 100, "%\n")
+
+# Update metrics table
+metrics$WIS[metrics$Model == "CISTE Ensemble"] <- wis_ens_new
+print(metrics)
+# ============================================================
+# EVALUATION METRICS
+# ============================================================
+metrics <- tibble(
+  Model = c("GAM","Prophet","QRF","ETS","CISTE Ensemble"),
+  MAE   = c(mean(abs(obs - test_nation$pred_gam)),
+            mean(abs(obs - test_nation$pred_prophet)),
+            mean(abs(obs - test_nation$pred_qrf)),
+            mean(abs(obs - test_nation$pred_ets)),
+            mean(abs(obs - test_nation$pred_ens))),
+  RMSE  = c(sqrt(mean((obs - test_nation$pred_gam)^2)),
+            sqrt(mean((obs - test_nation$pred_prophet)^2)),
+            sqrt(mean((obs - test_nation$pred_qrf)^2)),
+            sqrt(mean((obs - test_nation$pred_ets)^2)),
+            sqrt(mean((obs - test_nation$pred_ens)^2))),
+  WIS   = c(wis_vals["GAM"], wis_vals["Prophet"], wis_vals["QRF"], wis_vals["ETS"],
+            compute_wis(obs, test_nation$pred_ens, test_nation$ens_lo90, test_nation$ens_hi90))
+)
+print(metrics)
+write_csv(metrics, "model_metrics.csv")
+
+
+
+print(wis_ens_new)
+print(wis_vals)
+print(w)
+print(metrics)
+summary(gam_nat)
+
+```
+
+
+
+
+#### STEP 3 — PRODUCE SUBMISSION CSV + VISUALISATIONS (30 min)
+
+```{r figures}
+
+# ============================================================
+# SUBMISSION CSV
+# ============================================================
+submission <- test_nation %>%
+  transmute(
+    season             = as.character(season),
+    location           = "National",
+    epi_week_of_season = as.integer(epi_week_of_season),
+    week_start         = as.Date(week_start),
+    target             = "cases",
+    median             = as.numeric(pred_ens),
+    q05                = as.numeric(ens_lo90),
+    q25                = as.numeric(ens_lo50),
+    q75                = as.numeric(ens_hi50),
+    q95                = as.numeric(ens_hi90)
+  )
+
+# Add hospitalisations & deaths forecasts (scaled from cases)
+scale_hosp  <- mean(train_nation$hospitalizations / pmax(train_nation$cases, 1))
+scale_death <- mean(train_nation$deaths          / pmax(train_nation$cases, 1))
+
+submission_hosp <- submission %>%
+  mutate(
+    target = "hospitalizations",
+    median = as.numeric(median) * scale_hosp,
+    q05    = as.numeric(q05)    * scale_hosp,
+    q25    = as.numeric(q25)    * scale_hosp,
+    q75    = as.numeric(q75)    * scale_hosp,
+    q95    = as.numeric(q95)    * scale_hosp
+  )
+
+submission_death <- submission %>%
+  mutate(
+    target = "deaths",
+    median = as.numeric(median) * scale_death,
+    q05    = as.numeric(q05)    * scale_death,
+    q25    = as.numeric(q25)    * scale_death,
+    q75    = as.numeric(q75)    * scale_death,
+    q95    = as.numeric(q95)    * scale_death
+  )
+
+submission <- bind_rows(submission, submission_hosp, submission_death)
+
+# Final check — force all numeric columns to be plain numeric
+submission <- submission %>%
+  mutate(across(c(median, q05, q25, q75, q95), as.numeric))
+
+# Confirm no matrix/list columns
+cat("Column classes:\n")
+print(sapply(submission, class))
+cat("Rows:", nrow(submission), "\n")
+
+write_csv(submission, "forecast_submission.csv")
+cat("Submission written:", nrow(submission), "rows\n")
+
+# ============================================================
+# VISUALISATIONS (8 required)
+# ============================================================
+dir.create("figures", showWarnings = FALSE)
+
+# V1 — National weekly cases/hosp/deaths
+p1 <- ggplot(nation_weekly, aes(week_start, cases, colour = season)) +
+  geom_line(linewidth = 1) + scale_colour_viridis_d() +
+  labs(title = "National Weekly Influenza Cases", x=NULL, y="Cases", colour="Season") +
+  theme_minimal(base_size = 12)
+ggsave("figures/V1_national_cases.png", p1, width = 9, height = 5, dpi = 150)
+
+# V2 — Regional epidemic curves
+p2 <- state_weekly %>%
+  group_by(season, zone, epi_week_of_season) %>%
+  summarise(cases = sum(cases), .groups="drop") %>%
+  ggplot(aes(epi_week_of_season, cases, colour = zone)) +
+  geom_line(linewidth = 1) + facet_wrap(~season) +
+  labs(title="Regional Epidemic Curves", x="Epi Week", y="Cases", colour="Zone") +
+  theme_minimal(base_size = 11)
+ggsave("figures/V2_regional_curves.png", p2, width = 10, height = 5, dpi = 150)
+
+# V3 — North vs South
+north_zones <- c("NW","NE","NC")
+p3 <- state_weekly %>%
+  mutate(region = ifelse(zone %in% north_zones, "North","South")) %>%
+  group_by(season, region, epi_week_of_season) %>%
+  summarise(cases = sum(cases), .groups="drop") %>%
+  ggplot(aes(epi_week_of_season, cases, colour = region)) +
+  geom_line(linewidth = 1.2) + facet_wrap(~season) +
+  labs(title="North vs South Epidemic Waves", x="Epi Week", y="Cases", colour="Region") +
+  theme_minimal(base_size = 11)
+ggsave("figures/V3_north_south.png", p3, width = 10, height = 5, dpi = 150)
+
+# V4 — State heatmap
+p4 <- state_weekly %>%
+  ggplot(aes(epi_week_of_season, reorder(state, cases, FUN=sum), fill=cases)) +
+  geom_tile() + facet_wrap(~season, ncol=1, scales="free_y") +
+  scale_fill_viridis_c(option="magma", trans="log1p") +
+  labs(title="State-Level Weekly Cases", x="Epi Week", y=NULL, fill="Cases (log)") +
+  theme_minimal(base_size=9) +
+  theme(axis.text.y = element_text(size=5))
+ggsave("figures/V4_state_heatmap.png", p4, width=10, height=12, dpi=150)
+
+# ============================================================
+# V5 — Attack rate by state (bar chart alternative)
+# ============================================================
+p5 <- season_sum_state_meta %>%
+  filter(season == "2024/2025") %>%
+  ggplot(aes(x = reorder(state, attack_rate_pct), 
+             y = attack_rate_pct, fill = zone)) +
+  geom_col() +
+  coord_flip() +
+  scale_fill_viridis_d() +
+  labs(title = "Attack Rate by State — 2024/25 Season",
+       x = NULL, y = "Attack rate (%)", fill = "Zone") +
+  theme_minimal(base_size = 8)
+ggsave("figures/V5_attack_rate_bars.png", p5, width = 8, height = 9, dpi = 150)
+
+# ============================================================
+# V6 — Cumulative deaths per 100k by state (bar chart alternative)
+# ============================================================
+p6 <- season_sum_state_meta %>%
+  filter(season == "2024/2025") %>%
+  ggplot(aes(x = reorder(state, cum_deaths_per_100k), 
+             y = cum_deaths_per_100k, fill = zone)) +
+  geom_col() +
+  coord_flip() +
+  scale_fill_viridis_d() +
+  labs(title = "Cumulative Deaths per 100k by State — 2024/25 Season",
+       x = NULL, y = "Deaths per 100,000", fill = "Zone") +
+  theme_minimal(base_size = 8)
+ggsave("figures/V6_mortality_bars.png", p6, width = 8, height = 9, dpi = 150)
+
+cat("V5 and V6 (bar charts) saved.\n")
+
+
+# V7 — Peak week summaries
+p7 <- season_sum_state_meta %>%
+  ggplot(aes(season, peak_epi_week, fill=season)) +
+  geom_boxplot() +
+  labs(title="Peak Week Distribution by Season", x=NULL, y="Peak Epi Week") +
+  theme_minimal(base_size=11) + theme(legend.position="none")
+ggsave("figures/V7_peak_weeks.png", p7, width=7, height=5, dpi=150)
+
+# V8 — Forecast uncertainty bands
+p8 <- ggplot(test_nation, aes(week_start)) +
+  geom_ribbon(aes(ymin=ens_lo90, ymax=ens_hi90, fill="90% PI"), alpha=0.3) +
+  geom_ribbon(aes(ymin=ens_lo50, ymax=ens_hi50, fill="50% PI"), alpha=0.4) +
+  geom_line(aes(y=cases, colour="Observed"), linewidth=1) +
+  geom_line(aes(y=pred_ens, colour="CISTE Forecast"), linewidth=1, linetype="dashed") +
+  scale_fill_manual(values=c("90% PI"="steelblue","50% PI"="darkblue")) +
+  scale_colour_manual(values=c("Observed"="black","CISTE Forecast"="red")) +
+  labs(title="National Forecast with Uncertainty Bands — 2025/26",
+       x=NULL, y="Cases", fill=NULL, colour=NULL) +
+  theme_minimal(base_size=12)
+ggsave("figures/V8_forecast_uncertainty.png", p8, width=9, height=5, dpi=150)
+
+cat("All figures saved to /figures\n")
+
+```
+
+
+
+#### STEP 4 — QUICK CALIBRATION CHECK
+
+```{r calibration}
+
+# Check PI coverage
+cat("50% PI coverage (target 50%):",
+    mean(test_nation$cases >= test_nation$ens_lo50 &
+         test_nation$cases <= test_nation$ens_hi50) * 100, "%\n")
+
+cat("90% PI coverage (target 90%):",
+    mean(test_nation$cases >= test_nation$ens_lo90 &
+         test_nation$cases <= test_nation$ens_hi90) * 100, "%\n")
+
+```
+
+
+
+
